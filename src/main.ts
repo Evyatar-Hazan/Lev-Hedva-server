@@ -16,7 +16,7 @@ async function bootstrap() {
 
   // CORS
   app.enableCors({
-    origin: configService.get('CORS_ORIGIN', 'http://localhost:3001'),
+    origin: configService.get('CORS_ORIGIN', 'http://localhost:3003'),
     credentials: true,
   });
 
@@ -36,11 +36,13 @@ async function bootstrap() {
   if (configService.get('NODE_ENV') !== 'production') {
     const config = new DocumentBuilder()
       .setTitle('Lev Hedva API')
-      .setDescription('Backend API for Lev Hedva organization management system')
+      .setDescription(
+        'Backend API for Lev Hedva organization management system'
+      )
       .setVersion('1.0')
       .addBearerAuth()
       .build();
-    
+
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api/docs', app, document);
   }
