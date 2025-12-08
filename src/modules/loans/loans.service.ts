@@ -1,23 +1,36 @@
-import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { CreateLoanDto } from './dto/create-loan.dto';
 import { UpdateLoanDto } from './dto/update-loan.dto';
 import { ReturnLoanDto } from './dto/return-loan.dto';
 import { LoansQueryDto } from './dto/loan-query.dto';
-import { LoanResponseDto, LoansListResponseDto, LoanStatsResponseDto } from './dto/loan-response.dto';
+import {
+  LoanResponseDto,
+  LoansListResponseDto,
+  LoanStatsResponseDto,
+} from './dto/loan-response.dto';
 import { Prisma, LoanStatus } from '@prisma/client';
-import { AuditActionType, AuditEntityType } from '../audit/dto/create-audit-log.dto';
+import {
+  AuditActionType,
+  AuditEntityType,
+} from '../audit/dto/create-audit-log.dto';
 
 @Injectable()
 export class LoansService {
   constructor(
     private prisma: PrismaService,
-    private auditService: AuditService,
+    private auditService: AuditService
   ) {}
 
   async createLoan(createLoanDto: CreateLoanDto): Promise<LoanResponseDto> {
-    const { userId, productInstanceId, expectedReturnDate, notes } = createLoanDto;
+    const { userId, productInstanceId, expectedReturnDate, notes } =
+      createLoanDto;
 
     // Verify user exists and is active
     const user = await this.prisma.user.findUnique({
@@ -61,7 +74,9 @@ export class LoansService {
 
     const MAX_ACTIVE_LOANS = 3; // Business rule: maximum 3 active loans per user
     if (userActiveLoans >= MAX_ACTIVE_LOANS) {
-      throw new ConflictException(`המשתמש לא יכול לקבל יותר מ-${MAX_ACTIVE_LOANS} השאלות פעילות`);
+      throw new ConflictException(
+        `המשתמש לא יכול לקבל יותר מ-${MAX_ACTIVE_LOANS} השאלות פעילות`
+      );
     }
 
     // Create the loan
@@ -72,7 +87,9 @@ export class LoansService {
           productInstanceId,
           status: LoanStatus.ACTIVE,
           loanDate: new Date(),
-          expectedReturnDate: expectedReturnDate ? new Date(expectedReturnDate) : null,
+          expectedReturnDate: expectedReturnDate
+            ? new Date(expectedReturnDate)
+            : null,
           notes,
         },
         include: {
@@ -106,27 +123,43 @@ export class LoansService {
   }
 
   async findAllLoans(query: LoansQueryDto): Promise<LoansListResponseDto> {
-    const { search, userId, status, productCategory, startDate, endDate, isOverdue, sortBy, order, page, limit } = query;
-    
+    const {
+      search,
+      userId,
+      status,
+      productCategory,
+      startDate,
+      endDate,
+      isOverdue,
+      sortBy,
+      order,
+      page,
+      limit,
+    } = query;
+
     const where: Prisma.LoanWhereInput = {};
 
     // Text search
     if (search) {
       where.OR = [
-        { user: { 
-          OR: [
-            { firstName: { contains: search, mode: 'insensitive' } },
-            { lastName: { contains: search, mode: 'insensitive' } },
-            { email: { contains: search, mode: 'insensitive' } },
-          ]
-        }},
-        { productInstance: { 
-          OR: [
-            { barcode: { contains: search, mode: 'insensitive' } },
-            { serialNumber: { contains: search, mode: 'insensitive' } },
-            { product: { name: { contains: search, mode: 'insensitive' } } },
-          ]
-        }},
+        {
+          user: {
+            OR: [
+              { firstName: { contains: search, mode: 'insensitive' } },
+              { lastName: { contains: search, mode: 'insensitive' } },
+              { email: { contains: search, mode: 'insensitive' } },
+            ],
+          },
+        },
+        {
+          productInstance: {
+            OR: [
+              { barcode: { contains: search, mode: 'insensitive' } },
+              { serialNumber: { contains: search, mode: 'insensitive' } },
+              { product: { name: { contains: search, mode: 'insensitive' } } },
+            ],
+          },
+        },
         { notes: { contains: search, mode: 'insensitive' } },
       ];
     }
@@ -202,7 +235,7 @@ export class LoansService {
       this.prisma.loan.count({ where }),
     ]);
 
-    const formattedLoans = loans.map(loan => this.formatLoanResponse(loan));
+    const formattedLoans = loans.map((loan) => this.formatLoanResponse(loan));
 
     return {
       loans: formattedLoans,
@@ -241,7 +274,10 @@ export class LoansService {
     return this.formatLoanResponse(loan);
   }
 
-  async updateLoan(id: string, updateLoanDto: UpdateLoanDto): Promise<LoanResponseDto> {
+  async updateLoan(
+    id: string,
+    updateLoanDto: UpdateLoanDto
+  ): Promise<LoanResponseDto> {
     const { expectedReturnDate, notes } = updateLoanDto;
 
     // Check if loan exists and is active
@@ -261,7 +297,9 @@ export class LoansService {
       const loan = await this.prisma.loan.update({
         where: { id },
         data: {
-          expectedReturnDate: expectedReturnDate ? new Date(expectedReturnDate) : undefined,
+          expectedReturnDate: expectedReturnDate
+            ? new Date(expectedReturnDate)
+            : undefined,
           notes,
           updatedAt: new Date(),
         },
@@ -315,7 +353,9 @@ export class LoansService {
         data: {
           status: LoanStatus.RETURNED,
           actualReturnDate: new Date(),
-          notes: returnNotes ? `${loan.notes || ''}\nהחזרה: ${returnNotes}`.trim() : loan.notes,
+          notes: returnNotes
+            ? `${loan.notes || ''}\nהחזרה: ${returnNotes}`.trim()
+            : loan.notes,
         },
         include: {
           user: {
@@ -350,6 +390,76 @@ export class LoansService {
     }
   }
 
+  async returnLoanById(id: string, notes?: string): Promise<LoanResponseDto> {
+    // Find the loan
+    const loan = await this.prisma.loan.findUnique({
+      where: { id },
+      include: {
+        productInstance: true,
+      },
+    });
+
+    if (!loan) {
+      throw new NotFoundException('השאלה לא נמצאה');
+    }
+
+    if (loan.status !== LoanStatus.ACTIVE) {
+      throw new BadRequestException('השאלה כבר הוחזרה או אינה פעילה');
+    }
+
+    try {
+      // Update loan status and return date
+      const updatedLoan = await this.prisma.loan.update({
+        where: { id },
+        data: {
+          status: LoanStatus.RETURNED,
+          actualReturnDate: new Date(),
+          notes: notes
+            ? `${loan.notes || ''}\nהחזרה: ${notes}`.trim()
+            : loan.notes,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+              phone: true,
+            },
+          },
+          productInstance: {
+            include: {
+              product: true,
+            },
+          },
+        },
+      });
+
+      // Update product instance availability
+      await this.prisma.productInstance.update({
+        where: { id: loan.productInstanceId },
+        data: {
+          isAvailable: true,
+        },
+      });
+
+      // Log the action in audit
+      await this.auditService.createAuditLog({
+        userId: loan.userId,
+        action: AuditActionType.UPDATE,
+        entityType: AuditEntityType.LOAN,
+        entityId: id,
+        description: 'השאלה הוחזרה',
+        metadata: { action: 'loan_returned', notes },
+      });
+
+      return this.formatLoanResponse(updatedLoan);
+    } catch (error) {
+      throw new BadRequestException('שגיאה בהחזרת ההשאלה');
+    }
+  }
+
   async markLoanAsLost(id: string, notes?: string): Promise<LoanResponseDto> {
     const loan = await this.prisma.loan.findUnique({
       where: { id },
@@ -360,7 +470,9 @@ export class LoansService {
     }
 
     if (loan.status !== LoanStatus.ACTIVE) {
-      throw new BadRequestException('רק השאלות פעילות יכולות להיות מסומנות כאבודות');
+      throw new BadRequestException(
+        'רק השאלות פעילות יכולות להיות מסומנות כאבודות'
+      );
     }
 
     try {
@@ -368,7 +480,9 @@ export class LoansService {
         where: { id },
         data: {
           status: LoanStatus.LOST,
-          notes: notes ? `${loan.notes || ''}\nאבוד: ${notes}`.trim() : loan.notes,
+          notes: notes
+            ? `${loan.notes || ''}\nאבוד: ${notes}`.trim()
+            : loan.notes,
         },
         include: {
           user: {
@@ -429,11 +543,45 @@ export class LoansService {
       },
     });
 
-    return overdueLoans.map(loan => this.formatLoanResponse(loan));
+    return overdueLoans.map((loan) => this.formatLoanResponse(loan));
+  }
+
+  async getActiveLoans(): Promise<LoanResponseDto[]> {
+    const activeLoans = await this.prisma.loan.findMany({
+      where: {
+        status: LoanStatus.ACTIVE,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
+          },
+        },
+        productInstance: {
+          include: {
+            product: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return activeLoans.map((loan) => this.formatLoanResponse(loan));
   }
 
   async getLoanStats(): Promise<LoanStatsResponseDto> {
-    const [totalActiveLoans, totalOverdueLoans, totalReturnedLoans, totalLostItems] = await Promise.all([
+    const [
+      totalActiveLoans,
+      totalOverdueLoans,
+      totalReturnedLoans,
+      totalLostItems,
+    ] = await Promise.all([
       this.prisma.loan.count({ where: { status: LoanStatus.ACTIVE } }),
       this.prisma.loan.count({
         where: {
@@ -451,14 +599,16 @@ export class LoansService {
       select: { loanDate: true, actualReturnDate: true },
     });
 
-    const averageLoanDuration = returnedLoans.length > 0
-      ? returnedLoans.reduce((sum, loan) => {
-          const duration = loan.actualReturnDate 
-            ? (loan.actualReturnDate.getTime() - loan.loanDate.getTime()) / (1000 * 60 * 60 * 24)
-            : 0;
-          return sum + duration;
-        }, 0) / returnedLoans.length
-      : 0;
+    const averageLoanDuration =
+      returnedLoans.length > 0
+        ? returnedLoans.reduce((sum, loan) => {
+            const duration = loan.actualReturnDate
+              ? (loan.actualReturnDate.getTime() - loan.loanDate.getTime()) /
+                (1000 * 60 * 60 * 24)
+              : 0;
+            return sum + duration;
+          }, 0) / returnedLoans.length
+        : 0;
 
     // Get loans by category - simplified implementation
     // In production, you'd use raw SQL or aggregate the data differently
@@ -472,15 +622,17 @@ export class LoansService {
     });
 
     const categoryCount: Record<string, number> = {};
-    activeLoansByCategory.forEach(loan => {
+    activeLoansByCategory.forEach((loan) => {
       const category = loan.productInstance.product.category;
       categoryCount[category] = (categoryCount[category] || 0) + 1;
     });
 
-    const loansByCategory = Object.entries(categoryCount).map(([category, count]) => ({
-      category,
-      count,
-    }));
+    const loansByCategory = Object.entries(categoryCount).map(
+      ([category, count]) => ({
+        category,
+        count,
+      })
+    );
 
     // Get overdue by user
     const overdueByUser = await this.prisma.loan.groupBy({
@@ -500,7 +652,9 @@ export class LoansService {
         });
         return {
           userId: item.userId,
-          userName: user ? `${user.firstName} ${user.lastName}` : 'משתמש לא ידוע',
+          userName: user
+            ? `${user.firstName} ${user.lastName}`
+            : 'משתמש לא ידוע',
           count: item._count,
         };
       })
@@ -544,18 +698,23 @@ export class LoansService {
       },
     });
 
-    return loans.map(loan => this.formatLoanResponse(loan));
+    return loans.map((loan) => this.formatLoanResponse(loan));
   }
 
   private formatLoanResponse(loan: any): LoanResponseDto {
     const now = new Date();
-    const isOverdue = loan.status === LoanStatus.ACTIVE && 
-                     loan.expectedReturnDate && 
-                     new Date(loan.expectedReturnDate) < now;
-    
-    const daysOverdue = isOverdue && loan.expectedReturnDate
-      ? Math.floor((now.getTime() - new Date(loan.expectedReturnDate).getTime()) / (1000 * 60 * 60 * 24))
-      : undefined;
+    const isOverdue =
+      loan.status === LoanStatus.ACTIVE &&
+      loan.expectedReturnDate &&
+      new Date(loan.expectedReturnDate) < now;
+
+    const daysOverdue =
+      isOverdue && loan.expectedReturnDate
+        ? Math.floor(
+            (now.getTime() - new Date(loan.expectedReturnDate).getTime()) /
+              (1000 * 60 * 60 * 24)
+          )
+        : undefined;
 
     return {
       id: loan.id,
@@ -569,13 +728,15 @@ export class LoansService {
       createdAt: loan.createdAt,
       updatedAt: loan.updatedAt,
       user: loan.user,
-      productInstance: loan.productInstance ? {
-        id: loan.productInstance.id,
-        barcode: loan.productInstance.barcode,
-        serialNumber: loan.productInstance.serialNumber,
-        condition: loan.productInstance.condition,
-        product: loan.productInstance.product,
-      } : undefined,
+      productInstance: loan.productInstance
+        ? {
+            id: loan.productInstance.id,
+            barcode: loan.productInstance.barcode,
+            serialNumber: loan.productInstance.serialNumber,
+            condition: loan.productInstance.condition,
+            product: loan.productInstance.product,
+          }
+        : undefined,
       isOverdue,
       daysOverdue,
     };

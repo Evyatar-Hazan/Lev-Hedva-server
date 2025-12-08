@@ -23,7 +23,11 @@ import { CreateLoanDto } from './dto/create-loan.dto';
 import { UpdateLoanDto } from './dto/update-loan.dto';
 import { ReturnLoanDto } from './dto/return-loan.dto';
 import { LoansQueryDto } from './dto/loan-query.dto';
-import { LoanResponseDto, LoansListResponseDto, LoanStatsResponseDto } from './dto/loan-response.dto';
+import {
+  LoanResponseDto,
+  LoansListResponseDto,
+  LoanStatsResponseDto,
+} from './dto/loan-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionGuard } from '../auth/guards/permission.guard';
 import { RequirePermissions } from '../auth/decorators/permissions.decorator';
@@ -46,7 +50,9 @@ export class LoansController {
   })
   @ApiResponse({ status: 404, description: 'משתמש או פריט מוצר לא נמצא' })
   @ApiResponse({ status: 409, description: 'פריט המוצר אינו זמין להשאלה' })
-  async createLoan(@Body() createLoanDto: CreateLoanDto): Promise<LoanResponseDto> {
+  async createLoan(
+    @Body() createLoanDto: CreateLoanDto
+  ): Promise<LoanResponseDto> {
     return this.loansService.createLoan(createLoanDto);
   }
 
@@ -58,7 +64,9 @@ export class LoansController {
     description: 'רשימת השאלות',
     type: LoansListResponseDto,
   })
-  async findAllLoans(@Query() query: LoansQueryDto): Promise<LoansListResponseDto> {
+  async findAllLoans(
+    @Query() query: LoansQueryDto
+  ): Promise<LoansListResponseDto> {
     return this.loansService.findAllLoans(query);
   }
 
@@ -86,6 +94,18 @@ export class LoansController {
     return this.loansService.getOverdueLoans();
   }
 
+  @Get('active')
+  @RequirePermissions('loans.read')
+  @ApiOperation({ summary: 'קבלת רשימת השאלות פעילות' })
+  @ApiResponse({
+    status: 200,
+    description: 'רשימת השאלות פעילות',
+    type: [LoanResponseDto],
+  })
+  async getActiveLoans(): Promise<LoanResponseDto[]> {
+    return this.loansService.getActiveLoans();
+  }
+
   @Get('my-loans')
   @RequirePermissions('loans.read')
   @ApiOperation({ summary: 'קבלת ההשאלות הפעילות של המשתמש הנוכחי' })
@@ -94,7 +114,9 @@ export class LoansController {
     description: 'השאלות פעילות של המשתמש',
     type: [LoanResponseDto],
   })
-  async getMyActiveLoans(@GetUser('id') userId: string): Promise<LoanResponseDto[]> {
+  async getMyActiveLoans(
+    @GetUser('id') userId: string
+  ): Promise<LoanResponseDto[]> {
     return this.loansService.getUserActiveLoans(userId);
   }
 
@@ -107,7 +129,9 @@ export class LoansController {
     description: 'השאלות פעילות של המשתמש',
     type: [LoanResponseDto],
   })
-  async getUserActiveLoans(@Param('userId') userId: string): Promise<LoanResponseDto[]> {
+  async getUserActiveLoans(
+    @Param('userId') userId: string
+  ): Promise<LoanResponseDto[]> {
     return this.loansService.getUserActiveLoans(userId);
   }
 
@@ -138,9 +162,27 @@ export class LoansController {
   @ApiResponse({ status: 400, description: 'לא ניתן לעדכן השאלה שאינה פעילה' })
   async updateLoan(
     @Param('id') id: string,
-    @Body() updateLoanDto: UpdateLoanDto,
+    @Body() updateLoanDto: UpdateLoanDto
   ): Promise<LoanResponseDto> {
     return this.loansService.updateLoan(id, updateLoanDto);
+  }
+
+  @Patch(':id/return')
+  @RequirePermissions('loans.write')
+  @ApiOperation({ summary: 'החזרת השאלה' })
+  @ApiParam({ name: 'id', description: 'מזהה השאלה' })
+  @ApiResponse({
+    status: 200,
+    description: 'השאלה הוחזרה בהצלחה',
+    type: LoanResponseDto,
+  })
+  @ApiResponse({ status: 404, description: 'השאלה לא נמצאה' })
+  @ApiResponse({ status: 400, description: 'השאלה כבר הוחזרה או אינה פעילה' })
+  async returnLoanById(
+    @Param('id') id: string,
+    @Body('notes') notes?: string
+  ): Promise<LoanResponseDto> {
+    return this.loansService.returnLoanById(id, notes);
   }
 
   @Patch('return')
@@ -153,7 +195,9 @@ export class LoansController {
   })
   @ApiResponse({ status: 404, description: 'השאלה לא נמצאה' })
   @ApiResponse({ status: 400, description: 'השאלה כבר הוחזרה או אינה פעילה' })
-  async returnLoan(@Body() returnLoanDto: ReturnLoanDto): Promise<LoanResponseDto> {
+  async returnLoan(
+    @Body() returnLoanDto: ReturnLoanDto
+  ): Promise<LoanResponseDto> {
     return this.loansService.returnLoan(returnLoanDto);
   }
 
@@ -167,10 +211,13 @@ export class LoansController {
     type: LoanResponseDto,
   })
   @ApiResponse({ status: 404, description: 'השאלה לא נמצאה' })
-  @ApiResponse({ status: 400, description: 'רק השאלות פעילות יכולות להיות מסומנות כאבודות' })
+  @ApiResponse({
+    status: 400,
+    description: 'רק השאלות פעילות יכולות להיות מסומנות כאבודות',
+  })
   async markLoanAsLost(
     @Param('id') id: string,
-    @Body('notes') notes?: string,
+    @Body('notes') notes?: string
   ): Promise<LoanResponseDto> {
     return this.loansService.markLoanAsLost(id, notes);
   }
