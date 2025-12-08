@@ -1,4 +1,11 @@
-import { IsOptional, IsString, IsNumber, Min, Max, IsEnum } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsNumber,
+  Min,
+  Max,
+  IsEnum,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -65,6 +72,11 @@ export enum ProductInstanceSortField {
 }
 
 export class ProductInstancesQueryDto {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  productId?: string;
+
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()

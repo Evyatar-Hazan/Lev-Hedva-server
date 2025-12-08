@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -7,18 +12,29 @@ import { CreateProductInstanceDto } from './dto/create-product-instance.dto';
 import { UpdateProductInstanceDto } from './dto/update-product-instance.dto';
 import { ProductsQueryDto } from './dto/product-query.dto';
 import { ProductInstancesQueryDto } from './dto/product-query.dto';
-import { ProductResponseDto, ProductInstanceResponseDto, ProductsListResponseDto, ProductInstancesListResponseDto } from './dto/product-response.dto';
+import {
+  ProductResponseDto,
+  ProductInstanceResponseDto,
+  ProductsListResponseDto,
+  ProductInstancesListResponseDto,
+} from './dto/product-response.dto';
 import { Prisma } from '@prisma/client';
-import { AuditActionType, AuditEntityType } from '../audit/dto/create-audit-log.dto';
+import {
+  AuditActionType,
+  AuditEntityType,
+} from '../audit/dto/create-audit-log.dto';
 
 @Injectable()
 export class ProductsService {
   constructor(
     private prisma: PrismaService,
-    private auditService: AuditService,
+    private auditService: AuditService
   ) {}
 
-  async createProduct(createProductDto: CreateProductDto, userId?: string): Promise<ProductResponseDto> {
+  async createProduct(
+    createProductDto: CreateProductDto,
+    userId?: string
+  ): Promise<ProductResponseDto> {
     try {
       const product = await this.prisma.product.create({
         data: createProductDto,
@@ -44,7 +60,7 @@ export class ProductsService {
             category: product.category,
             manufacturer: product.manufacturer,
             model: product.model,
-          },
+          }
         );
       }
 
@@ -62,9 +78,12 @@ export class ProductsService {
     }
   }
 
-  async findAllProducts(query: ProductsQueryDto): Promise<ProductsListResponseDto> {
-    const { search, category, manufacturer, sortBy, order, page, limit } = query;
-    
+  async findAllProducts(
+    query: ProductsQueryDto
+  ): Promise<ProductsListResponseDto> {
+    const { search, category, manufacturer, sortBy, order, page, limit } =
+      query;
+
     const where: Prisma.ProductWhereInput = {};
 
     if (search) {
@@ -120,8 +139,10 @@ export class ProductsService {
 
     const productsWithStats = products.map((product) => {
       const totalInstances = product._count.instances;
-      const availableInstances = product.instances.filter((instance) => instance.isAvailable).length;
-      const loanedInstances = product.instances.filter((instance) => 
+      const availableInstances = product.instances.filter(
+        (instance) => instance.isAvailable
+      ).length;
+      const loanedInstances = product.instances.filter((instance) =>
         instance.loans.some((loan) => loan.status === 'ACTIVE')
       ).length;
 
@@ -175,8 +196,10 @@ export class ProductsService {
     }
 
     const totalInstances = product._count.instances;
-    const availableInstances = product.instances.filter((instance) => instance.isAvailable).length;
-    const loanedInstances = product.instances.filter((instance) => 
+    const availableInstances = product.instances.filter(
+      (instance) => instance.isAvailable
+    ).length;
+    const loanedInstances = product.instances.filter((instance) =>
       instance.loans.some((loan) => loan.status === 'ACTIVE')
     ).length;
 
@@ -195,7 +218,10 @@ export class ProductsService {
     };
   }
 
-  async updateProduct(id: string, updateProductDto: UpdateProductDto): Promise<ProductResponseDto> {
+  async updateProduct(
+    id: string,
+    updateProductDto: UpdateProductDto
+  ): Promise<ProductResponseDto> {
     try {
       const product = await this.prisma.product.update({
         where: { id },
@@ -245,8 +271,8 @@ export class ProductsService {
     }
 
     // Check if any instances have active loans
-    const hasActiveLoans = productWithInstances.instances.some((instance) => 
-      instance.loans.length > 0
+    const hasActiveLoans = productWithInstances.instances.some(
+      (instance) => instance.loans.length > 0
     );
 
     if (hasActiveLoans) {
@@ -266,7 +292,9 @@ export class ProductsService {
   }
 
   // Product Instance methods
-  async createProductInstance(createInstanceDto: CreateProductInstanceDto): Promise<ProductInstanceResponseDto> {
+  async createProductInstance(
+    createInstanceDto: CreateProductInstanceDto
+  ): Promise<ProductInstanceResponseDto> {
     // Check if product exists
     const product = await this.prisma.product.findUnique({
       where: { id: createInstanceDto.productId },
@@ -301,22 +329,40 @@ export class ProductsService {
     }
   }
 
-  async findAllProductInstances(query: ProductInstancesQueryDto): Promise<ProductInstancesListResponseDto> {
-    const { search, condition, location, isAvailable, sortBy, order, page, limit } = query;
-    
+  async findAllProductInstances(
+    query: ProductInstancesQueryDto
+  ): Promise<ProductInstancesListResponseDto> {
+    const {
+      productId,
+      search,
+      condition,
+      location,
+      isAvailable,
+      sortBy,
+      order,
+      page,
+      limit,
+    } = query;
+
     const where: Prisma.ProductInstanceWhereInput = {};
+
+    if (productId) {
+      where.productId = productId;
+    }
 
     if (search) {
       where.OR = [
         { barcode: { contains: search, mode: 'insensitive' } },
         { serialNumber: { contains: search, mode: 'insensitive' } },
         { notes: { contains: search, mode: 'insensitive' } },
-        { product: { 
-          OR: [
-            { name: { contains: search, mode: 'insensitive' } },
-            { category: { contains: search, mode: 'insensitive' } },
-          ]
-        }},
+        {
+          product: {
+            OR: [
+              { name: { contains: search, mode: 'insensitive' } },
+              { category: { contains: search, mode: 'insensitive' } },
+            ],
+          },
+        },
       ];
     }
 
@@ -375,13 +421,16 @@ export class ProductsService {
       createdAt: instance.createdAt,
       updatedAt: instance.updatedAt,
       product: instance.product,
-      currentLoan: instance.loans.length > 0 ? {
-        id: instance.loans[0].id,
-        userId: instance.loans[0].userId,
-        loanDate: instance.loans[0].loanDate,
-        expectedReturnDate: instance.loans[0].expectedReturnDate,
-        user: instance.loans[0].user,
-      } : undefined,
+      currentLoan:
+        instance.loans.length > 0
+          ? {
+              id: instance.loans[0].id,
+              userId: instance.loans[0].userId,
+              loanDate: instance.loans[0].loanDate,
+              expectedReturnDate: instance.loans[0].expectedReturnDate,
+              user: instance.loans[0].user,
+            }
+          : undefined,
     }));
 
     return {
@@ -393,7 +442,9 @@ export class ProductsService {
     };
   }
 
-  async findProductInstanceById(id: string): Promise<ProductInstanceResponseDto> {
+  async findProductInstanceById(
+    id: string
+  ): Promise<ProductInstanceResponseDto> {
     const instance = await this.prisma.productInstance.findUnique({
       where: { id },
       include: {
@@ -429,17 +480,22 @@ export class ProductsService {
       createdAt: instance.createdAt,
       updatedAt: instance.updatedAt,
       product: instance.product,
-      currentLoan: instance.loans.length > 0 ? {
-        id: instance.loans[0].id,
-        userId: instance.loans[0].userId,
-        loanDate: instance.loans[0].loanDate,
-        expectedReturnDate: instance.loans[0].expectedReturnDate,
-        user: instance.loans[0].user,
-      } : undefined,
+      currentLoan:
+        instance.loans.length > 0
+          ? {
+              id: instance.loans[0].id,
+              userId: instance.loans[0].userId,
+              loanDate: instance.loans[0].loanDate,
+              expectedReturnDate: instance.loans[0].expectedReturnDate,
+              user: instance.loans[0].user,
+            }
+          : undefined,
     };
   }
 
-  async findProductInstanceByBarcode(barcode: string): Promise<ProductInstanceResponseDto> {
+  async findProductInstanceByBarcode(
+    barcode: string
+  ): Promise<ProductInstanceResponseDto> {
     const instance = await this.prisma.productInstance.findUnique({
       where: { barcode },
       include: {
@@ -475,17 +531,23 @@ export class ProductsService {
       createdAt: instance.createdAt,
       updatedAt: instance.updatedAt,
       product: instance.product,
-      currentLoan: instance.loans.length > 0 ? {
-        id: instance.loans[0].id,
-        userId: instance.loans[0].userId,
-        loanDate: instance.loans[0].loanDate,
-        expectedReturnDate: instance.loans[0].expectedReturnDate,
-        user: instance.loans[0].user,
-      } : undefined,
+      currentLoan:
+        instance.loans.length > 0
+          ? {
+              id: instance.loans[0].id,
+              userId: instance.loans[0].userId,
+              loanDate: instance.loans[0].loanDate,
+              expectedReturnDate: instance.loans[0].expectedReturnDate,
+              user: instance.loans[0].user,
+            }
+          : undefined,
     };
   }
 
-  async updateProductInstance(id: string, updateInstanceDto: UpdateProductInstanceDto): Promise<ProductInstanceResponseDto> {
+  async updateProductInstance(
+    id: string,
+    updateInstanceDto: UpdateProductInstanceDto
+  ): Promise<ProductInstanceResponseDto> {
     try {
       const instance = await this.prisma.productInstance.update({
         where: { id },
@@ -551,7 +613,7 @@ export class ProductsService {
       distinct: ['category'],
     });
 
-    return products.map(p => p.category).filter(Boolean);
+    return products.map((p) => p.category).filter(Boolean);
   }
 
   async getProductManufacturers(): Promise<string[]> {
@@ -560,7 +622,7 @@ export class ProductsService {
       distinct: ['manufacturer'],
     });
 
-    return products.map(p => p.manufacturer).filter(Boolean);
+    return products.map((p) => p.manufacturer).filter(Boolean);
   }
 
   async getInstanceConditions(): Promise<string[]> {
@@ -569,7 +631,7 @@ export class ProductsService {
       distinct: ['condition'],
     });
 
-    return instances.map(i => i.condition).filter(Boolean);
+    return instances.map((i) => i.condition).filter(Boolean);
   }
 
   async getInstanceLocations(): Promise<string[]> {
@@ -578,6 +640,6 @@ export class ProductsService {
       distinct: ['location'],
     });
 
-    return instances.map(i => i.location).filter(Boolean);
+    return instances.map((i) => i.location).filter(Boolean);
   }
 }
