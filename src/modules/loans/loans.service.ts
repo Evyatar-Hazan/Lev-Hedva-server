@@ -123,6 +123,9 @@ export class LoansService {
   }
 
   async findAllLoans(query: LoansQueryDto): Promise<LoansListResponseDto> {
+    // עדכון סטטוס השאלות באיחור לפני חיפוש
+    await this.updateOverdueLoans();
+
     const {
       search,
       userId,
@@ -196,10 +199,7 @@ export class LoansService {
 
     // Filter overdue loans
     if (isOverdue === true) {
-      where.status = LoanStatus.ACTIVE;
-      where.expectedReturnDate = {
-        lt: new Date(),
-      };
+      where.status = LoanStatus.OVERDUE;
     }
 
     // Sorting
@@ -278,9 +278,9 @@ export class LoansService {
     id: string,
     updateLoanDto: UpdateLoanDto
   ): Promise<LoanResponseDto> {
-    const { expectedReturnDate, notes } = updateLoanDto;
+    const { expectedReturnDate, notes, status } = updateLoanDto;
 
-    // Check if loan exists and is active
+    // Check if loan exists
     const existingLoan = await this.prisma.loan.findUnique({
       where: { id },
     });
@@ -289,20 +289,47 @@ export class LoansService {
       throw new NotFoundException('השאלה לא נמצאה');
     }
 
-    if (existingLoan.status !== LoanStatus.ACTIVE) {
-      throw new BadRequestException('לא ניתן לעדכן השאלה שאינה פעילה');
-    }
+    // אפשר עדכון של כל סטטוס למנהלי מערכת
+    // if (existingLoan.status !== LoanStatus.ACTIVE && existingLoan.status !== LoanStatus.OVERDUE) {
+    //   throw new BadRequestException('לא ניתן לעדכן השאלה שאינה פעילה');
+    // }
 
     try {
+      const updateData: any = {
+        updatedAt: new Date(),
+      };
+
+      if (expectedReturnDate) {
+        updateData.expectedReturnDate = new Date(expectedReturnDate);
+      }
+
+      if (notes !== undefined) {
+        updateData.notes = notes;
+      }
+
+      if (status) {
+        updateData.status = status;
+
+        // עדכון תאריך החזרה בפועל אם הסטטוס משתנה ל-RETURNED
+        if (
+          status === LoanStatus.RETURNED &&
+          existingLoan.status !== LoanStatus.RETURNED
+        ) {
+          updateData.actualReturnDate = new Date();
+        }
+
+        // מחיקת תאריך החזרה בפועל אם הסטטוס משתנה מ-RETURNED
+        if (
+          status !== LoanStatus.RETURNED &&
+          existingLoan.status === LoanStatus.RETURNED
+        ) {
+          updateData.actualReturnDate = null;
+        }
+      }
+
       const loan = await this.prisma.loan.update({
         where: { id },
-        data: {
-          expectedReturnDate: expectedReturnDate
-            ? new Date(expectedReturnDate)
-            : undefined,
-          notes,
-          updatedAt: new Date(),
-        },
+        data: updateData,
         include: {
           user: {
             select: {
@@ -342,7 +369,10 @@ export class LoansService {
       throw new NotFoundException('השאלה לא נמצאה');
     }
 
-    if (loan.status !== LoanStatus.ACTIVE) {
+    if (
+      loan.status !== LoanStatus.ACTIVE &&
+      loan.status !== LoanStatus.OVERDUE
+    ) {
       throw new BadRequestException('השאלה כבר הוחזרה או אינה פעילה');
     }
 
@@ -403,7 +433,10 @@ export class LoansService {
       throw new NotFoundException('השאלה לא נמצאה');
     }
 
-    if (loan.status !== LoanStatus.ACTIVE) {
+    if (
+      loan.status !== LoanStatus.ACTIVE &&
+      loan.status !== LoanStatus.OVERDUE
+    ) {
       throw new BadRequestException('השאלה כבר הוחזרה או אינה פעילה');
     }
 
@@ -469,9 +502,12 @@ export class LoansService {
       throw new NotFoundException('השאלה לא נמצאה');
     }
 
-    if (loan.status !== LoanStatus.ACTIVE) {
+    if (
+      loan.status !== LoanStatus.ACTIVE &&
+      loan.status !== LoanStatus.OVERDUE
+    ) {
       throw new BadRequestException(
-        'רק השאלות פעילות יכולות להיות מסומנות כאבודות'
+        'רק השאלות פעילות או באיחור יכולות להיות מסומנות כאבודות'
       );
     }
 
@@ -515,12 +551,12 @@ export class LoansService {
   }
 
   async getOverdueLoans(): Promise<LoanResponseDto[]> {
+    // עדכון סטטוס השאלות באיחור לפני חיפוש
+    await this.updateOverdueLoans();
+
     const overdueLoans = await this.prisma.loan.findMany({
       where: {
-        status: LoanStatus.ACTIVE,
-        expectedReturnDate: {
-          lt: new Date(),
-        },
+        status: LoanStatus.OVERDUE,
       },
       include: {
         user: {
@@ -547,6 +583,9 @@ export class LoansService {
   }
 
   async getActiveLoans(): Promise<LoanResponseDto[]> {
+    // עדכון סטטוס השאלות באיחור לפני חיפוש
+    await this.updateOverdueLoans();
+
     const activeLoans = await this.prisma.loan.findMany({
       where: {
         status: LoanStatus.ACTIVE,
@@ -576,6 +615,9 @@ export class LoansService {
   }
 
   async getLoanStats(): Promise<LoanStatsResponseDto> {
+    // עדכון סטטוס השאלות באיחור לפני חישוב הסטטיסטיקות
+    await this.updateOverdueLoans();
+
     const [
       totalActiveLoans,
       totalOverdueLoans,
@@ -583,12 +625,7 @@ export class LoansService {
       totalLostItems,
     ] = await Promise.all([
       this.prisma.loan.count({ where: { status: LoanStatus.ACTIVE } }),
-      this.prisma.loan.count({
-        where: {
-          status: LoanStatus.ACTIVE,
-          expectedReturnDate: { lt: new Date() },
-        },
-      }),
+      this.prisma.loan.count({ where: { status: LoanStatus.OVERDUE } }),
       this.prisma.loan.count({ where: { status: LoanStatus.RETURNED } }),
       this.prisma.loan.count({ where: { status: LoanStatus.LOST } }),
     ]);
@@ -639,8 +676,7 @@ export class LoansService {
       by: ['userId'],
       _count: true,
       where: {
-        status: LoanStatus.ACTIVE,
-        expectedReturnDate: { lt: new Date() },
+        status: LoanStatus.OVERDUE,
       },
     });
 
@@ -703,10 +739,9 @@ export class LoansService {
 
   private formatLoanResponse(loan: any): LoanResponseDto {
     const now = new Date();
-    const isOverdue =
-      loan.status === LoanStatus.ACTIVE &&
-      loan.expectedReturnDate &&
-      new Date(loan.expectedReturnDate) < now;
+
+    // השאלה באיחור אם הסטטוס הוא OVERDUE
+    const isOverdue = loan.status === LoanStatus.OVERDUE;
 
     const daysOverdue =
       isOverdue && loan.expectedReturnDate
@@ -740,5 +775,29 @@ export class LoansService {
       isOverdue,
       daysOverdue,
     };
+  }
+
+  /**
+   * עדכון אוטומטי של סטטוס השאלות באיחור
+   */
+  private async updateOverdueLoans(): Promise<void> {
+    const now = new Date();
+
+    // מציאת השאלות פעילות שחלף התאריך הצפוי להחזרה
+    const overdueLoansUpdate = await this.prisma.loan.updateMany({
+      where: {
+        status: LoanStatus.ACTIVE,
+        expectedReturnDate: {
+          lt: now,
+        },
+      },
+      data: {
+        status: LoanStatus.OVERDUE,
+      },
+    });
+
+    if (overdueLoansUpdate.count > 0) {
+      console.log(`עודכנו ${overdueLoansUpdate.count} השאלות לסטטוס איחור`);
+    }
   }
 }

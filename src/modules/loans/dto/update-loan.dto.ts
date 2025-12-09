@@ -1,5 +1,12 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, MaxLength, IsDateString } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  MaxLength,
+  IsDateString,
+  IsEnum,
+} from 'class-validator';
+import { LoanStatus } from '@prisma/client';
 
 export class UpdateLoanDto {
   @ApiPropertyOptional({
@@ -7,7 +14,10 @@ export class UpdateLoanDto {
     description: 'תאריך החזרה צפוי מעודכן',
   })
   @IsOptional()
-  @IsDateString({}, { message: 'תאריך החזרה הצפוי חייב להיות בפורמט תאריך תקין' })
+  @IsDateString(
+    {},
+    { message: 'תאריך החזרה הצפוי חייב להיות בפורמט תאריך תקין' }
+  )
   expectedReturnDate?: string;
 
   @ApiPropertyOptional({
@@ -18,4 +28,15 @@ export class UpdateLoanDto {
   @IsString({ message: 'הערות חייבות להיות מחרוזת' })
   @MaxLength(500, { message: 'הערות חייבות להכיל פחות מ-500 תווים' })
   notes?: string;
+
+  @ApiPropertyOptional({
+    example: 'ACTIVE',
+    description: 'סטטוס מעודכן של ההשאלה',
+    enum: LoanStatus,
+  })
+  @IsOptional()
+  @IsEnum(LoanStatus, {
+    message: 'סטטוס ההשאלה חייב להיות אחד מהערכים המותרים',
+  })
+  status?: LoanStatus;
 }
