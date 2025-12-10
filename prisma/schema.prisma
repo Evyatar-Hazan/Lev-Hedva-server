@@ -31,6 +31,7 @@ model User {
   firstName    String
   lastName     String
   phone        String?
+  address      String?
   role         UserRole  @default(CLIENT)
   isActive     Boolean   @default(true)
   refreshToken String?

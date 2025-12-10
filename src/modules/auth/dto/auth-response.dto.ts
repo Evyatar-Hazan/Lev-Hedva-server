@@ -14,9 +14,12 @@ export class AuthResponseDto {
     email: string;
     firstName: string;
     lastName: string;
+    phone?: string;
+    address?: string;
     role: string;
     isActive: boolean;
     permissions: string[];
+    createdAt?: string;
   };
 }
 

@@ -1,4 +1,9 @@
-import { Injectable, UnauthorizedException, ConflictException, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -7,7 +12,10 @@ import * as bcrypt from 'bcrypt';
 import { User, UserRole } from '@prisma/client';
 import { LoginDto, RegisterDto, AuthResponseDto } from './dto';
 import { JwtPayload } from './strategies/jwt.strategy';
-import { AuditActionType, AuditEntityType } from '../audit/dto/create-audit-log.dto';
+import {
+  AuditActionType,
+  AuditEntityType,
+} from '../audit/dto/create-audit-log.dto';
 
 @Injectable()
 export class AuthService {
@@ -15,7 +23,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private configService: ConfigService,
-    private auditService: AuditService,
+    private auditService: AuditService
   ) {}
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
@@ -68,7 +76,7 @@ export class AuthService {
         {
           secret: this.configService.get<string>('JWT_SECRET'),
           expiresIn: '7d',
-        },
+        }
       );
 
       // Store refresh token
@@ -89,7 +97,7 @@ export class AuthService {
           role: user.role,
           firstName: user.firstName,
           lastName: user.lastName,
-        },
+        }
       );
 
       return {
@@ -100,9 +108,12 @@ export class AuthService {
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
+          phone: user.phone,
+          address: user.address,
           role: user.role,
           isActive: user.isActive,
-          permissions: user.userPermissions.map(up => up.permission.name),
+          permissions: user.userPermissions.map((up) => up.permission.name),
+          createdAt: user.createdAt.toISOString(),
         },
       };
     } catch (error) {
@@ -116,7 +127,7 @@ export class AuthService {
         {
           email: registerDto.email,
           error: error.message,
-        },
+        }
       );
       throw new InternalServerErrorException('שגיאה ביצירת המשתמש');
     }
@@ -143,13 +154,13 @@ export class AuthService {
       {
         secret: this.configService.get<string>('JWT_SECRET'),
         expiresIn: '7d',
-      },
+      }
     );
 
     // Store refresh token
     await this.prisma.user.update({
       where: { id: user.id },
-      data: { 
+      data: {
         refreshToken: await bcrypt.hash(refreshToken, 10),
         lastLogin: new Date(),
       },
@@ -165,7 +176,7 @@ export class AuthService {
       {
         email: user.email,
         role: user.role,
-      },
+      }
     );
 
     return {
@@ -176,9 +187,12 @@ export class AuthService {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
+        phone: user.phone,
+        address: user.address,
         role: user.role,
         isActive: user.isActive,
-        permissions: user.userPermissions.map(up => up.permission.name),
+        permissions: user.userPermissions.map((up) => up.permission.name),
+        createdAt: user.createdAt.toISOString(),
       },
     };
   }
@@ -195,11 +209,15 @@ export class AuthService {
       },
     });
 
-    if (user && user.isActive && await bcrypt.compare(password, user.password)) {
+    if (
+      user &&
+      user.isActive &&
+      (await bcrypt.compare(password, user.password))
+    ) {
       const { password: _, refreshToken: __, ...result } = user;
       return result;
     }
-    
+
     // Log failed login attempt
     await this.auditService.logSecurityEvent(
       AuditActionType.FAILED_LOGIN,
@@ -209,10 +227,14 @@ export class AuthService {
       undefined,
       {
         email: email,
-        reason: !user ? 'משתמש לא קיים' : !user.isActive ? 'חשבון לא פעיל' : 'סיסמה שגויה',
-      },
+        reason: !user
+          ? 'משתמש לא קיים'
+          : !user.isActive
+            ? 'חשבון לא פעיל'
+            : 'סיסמה שגויה',
+      }
     );
-    
+
     return null;
   }
 
@@ -258,7 +280,10 @@ export class AuthService {
       }
 
       // Verify stored refresh token
-      const isRefreshTokenValid = await bcrypt.compare(refreshToken, user.refreshToken || '');
+      const isRefreshTokenValid = await bcrypt.compare(
+        refreshToken,
+        user.refreshToken || ''
+      );
       if (!isRefreshTokenValid) {
         throw new UnauthorizedException('Refresh token לא תקין');
       }
@@ -276,7 +301,7 @@ export class AuthService {
         {
           secret: this.configService.get<string>('JWT_SECRET'),
           expiresIn: '7d',
-        },
+        }
       );
 
       // Update stored refresh token
@@ -295,7 +320,7 @@ export class AuthService {
           lastName: user.lastName,
           role: user.role,
           isActive: user.isActive,
-          permissions: user.userPermissions.map(up => up.permission.name),
+          permissions: user.userPermissions.map((up) => up.permission.name),
         },
       };
     } catch (error) {
@@ -324,7 +349,7 @@ export class AuthService {
       undefined,
       {
         email: user?.email,
-      },
+      }
     );
   }
 
@@ -334,6 +359,6 @@ export class AuthService {
       include: { permission: true },
     });
 
-    return userPermissions.map(up => up.permission.name);
+    return userPermissions.map((up) => up.permission.name);
   }
 }
