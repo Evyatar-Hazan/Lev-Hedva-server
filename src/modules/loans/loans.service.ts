@@ -117,7 +117,7 @@ export class LoansService {
       });
 
       return this.formatLoanResponse(loan);
-    } catch (error) {
+    } catch {
       throw new BadRequestException('שגיאה ביצירת ההשאלה');
     }
   }
@@ -349,7 +349,7 @@ export class LoansService {
       });
 
       return this.formatLoanResponse(loan);
-    } catch (error) {
+    } catch {
       throw new BadRequestException('שגיאה בעדכון ההשאלה');
     }
   }
@@ -415,7 +415,7 @@ export class LoansService {
       });
 
       return this.formatLoanResponse(updatedLoan);
-    } catch (error) {
+    } catch {
       throw new BadRequestException('שגיאה בהחזרת ההשאלה');
     }
   }
@@ -488,7 +488,7 @@ export class LoansService {
       });
 
       return this.formatLoanResponse(updatedLoan);
-    } catch (error) {
+    } catch {
       throw new BadRequestException('שגיאה בהחזרת ההשאלה');
     }
   }
@@ -545,7 +545,7 @@ export class LoansService {
       });
 
       return this.formatLoanResponse(updatedLoan);
-    } catch (error) {
+    } catch {
       throw new BadRequestException('שגיאה בסימון ההשאלה כאבודה');
     }
   }

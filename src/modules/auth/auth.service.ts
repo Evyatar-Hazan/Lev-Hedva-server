@@ -361,4 +361,61 @@ export class AuthService {
 
     return userPermissions.map((up) => up.permission.name);
   }
+
+  async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
+    // Get user with password
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { 
+        id: true, 
+        email: true, 
+        password: true,
+        isActive: true 
+      },
+    });
+
+    if (!user || !user.isActive) {
+      throw new UnauthorizedException('משתמש לא נמצא או לא פעיל');
+    }
+
+    // Verify current password
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isCurrentPasswordValid) {
+      // Log failed password change attempt
+      await this.auditService.logSecurityEvent(
+        AuditActionType.UPDATE,
+        `ניסיון כושל לשינוי סיסמה: ${user.email}`,
+        userId,
+        undefined,
+        undefined,
+        {
+          email: user.email,
+          reason: 'סיסמה נוכחית שגויה',
+        }
+      );
+      throw new UnauthorizedException('הסיסמה הנוכחית אינה נכונה');
+    }
+
+    // Hash new password
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // Update password
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+
+    // Log successful password change
+    await this.auditService.logSecurityEvent(
+      AuditActionType.UPDATE,
+      `שינוי סיסמה מוצלח: ${user.email}`,
+      userId,
+      undefined,
+      undefined,
+      {
+        email: user.email,
+      }
+    );
+  }
 }

@@ -7,10 +7,11 @@ import {
   UseGuards,
   Get,
   Request,
+  Patch,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { LoginDto, RegisterDto, AuthResponseDto, RefreshTokenDto } from './dto';
+import { LoginDto, RegisterDto, AuthResponseDto, RefreshTokenDto, ChangePasswordDto } from './dto';
 import { JwtAuthGuard } from './guards';
 import { GetUser } from './decorators';
 
@@ -94,5 +95,30 @@ export class AuthController {
       ...user,
       permissions: userPermissions,
     };
+  }
+
+  @Patch('change-password')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Change user password' })
+  @ApiResponse({
+    status: 200,
+    description: 'Password changed successfully',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Current password is incorrect',
+  })
+  async changePassword(
+    @GetUser() user: any,
+    @Body() changePasswordDto: ChangePasswordDto
+  ): Promise<{ message: string }> {
+    await this.authService.changePassword(
+      user.userId,
+      changePasswordDto.currentPassword,
+      changePasswordDto.newPassword
+    );
+    return { message: 'הסיסמה שונתה בהצלחה' };
   }
 }
