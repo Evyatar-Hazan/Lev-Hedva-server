@@ -68,7 +68,7 @@ export class VolunteersController {
     description: 'Insufficient permissions',
   })
   async createActivity(
-    @Body() createActivityDto: CreateVolunteerActivityDto,
+    @Body() createActivityDto: CreateVolunteerActivityDto
   ): Promise<VolunteerActivityResponseDto> {
     return this.volunteersService.createActivity(createActivityDto);
   }
@@ -77,17 +77,63 @@ export class VolunteersController {
   @RequirePermissions(PERMISSIONS.VOLUNTEER_READ)
   @ApiOperation({
     summary: 'Get volunteer activities',
-    description: 'Retrieve volunteer activities with optional filtering and pagination',
+    description:
+      'Retrieve volunteer activities with optional filtering and pagination',
   })
-  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number (default: 1)' })
-  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page (default: 10)' })
-  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search in description and activity type' })
-  @ApiQuery({ name: 'volunteerId', required: false, type: String, description: 'Filter by volunteer ID' })
-  @ApiQuery({ name: 'activityType', required: false, type: String, description: 'Filter by activity type' })
-  @ApiQuery({ name: 'startDate', required: false, type: String, description: 'Filter from date (YYYY-MM-DD)' })
-  @ApiQuery({ name: 'endDate', required: false, type: String, description: 'Filter to date (YYYY-MM-DD)' })
-  @ApiQuery({ name: 'sortBy', required: false, enum: ['date', 'hours', 'activityType'], description: 'Sort field' })
-  @ApiQuery({ name: 'sortOrder', required: false, enum: ['asc', 'desc'], description: 'Sort order' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number (default: 1)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Items per page (default: 10)',
+  })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    description: 'Search in description and activity type',
+  })
+  @ApiQuery({
+    name: 'volunteerId',
+    required: false,
+    type: String,
+    description: 'Filter by volunteer ID',
+  })
+  @ApiQuery({
+    name: 'activityType',
+    required: false,
+    type: String,
+    description: 'Filter by activity type',
+  })
+  @ApiQuery({
+    name: 'startDate',
+    required: false,
+    type: String,
+    description: 'Filter from date (YYYY-MM-DD)',
+  })
+  @ApiQuery({
+    name: 'endDate',
+    required: false,
+    type: String,
+    description: 'Filter to date (YYYY-MM-DD)',
+  })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    enum: ['date', 'hours', 'activityType'],
+    description: 'Sort field',
+  })
+  @ApiQuery({
+    name: 'sortOrder',
+    required: false,
+    enum: ['asc', 'desc'],
+    description: 'Sort order',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Volunteer activities retrieved successfully',
@@ -129,7 +175,7 @@ export class VolunteersController {
     description: 'Insufficient permissions',
   })
   async findActivity(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id') id: string
   ): Promise<VolunteerActivityResponseDto> {
     return this.volunteersService.findActivityById(id);
   }
@@ -164,8 +210,8 @@ export class VolunteersController {
     description: 'Insufficient permissions',
   })
   async updateActivity(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateActivityDto: UpdateVolunteerActivityDto,
+    @Param('id') id: string,
+    @Body() updateActivityDto: UpdateVolunteerActivityDto
   ): Promise<VolunteerActivityResponseDto> {
     return this.volunteersService.updateActivity(id, updateActivityDto);
   }
@@ -196,7 +242,7 @@ export class VolunteersController {
   @ApiForbiddenResponse({
     description: 'Insufficient permissions',
   })
-  async deleteActivity(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
+  async deleteActivity(@Param('id') id: string): Promise<void> {
     return this.volunteersService.deleteActivity(id);
   }
 
@@ -212,8 +258,18 @@ export class VolunteersController {
     format: 'uuid',
     description: 'Volunteer user ID',
   })
-  @ApiQuery({ name: 'startDate', required: false, type: String, description: 'Statistics from date (YYYY-MM-DD)' })
-  @ApiQuery({ name: 'endDate', required: false, type: String, description: 'Statistics to date (YYYY-MM-DD)' })
+  @ApiQuery({
+    name: 'startDate',
+    required: false,
+    type: String,
+    description: 'Statistics from date (YYYY-MM-DD)',
+  })
+  @ApiQuery({
+    name: 'endDate',
+    required: false,
+    type: String,
+    description: 'Statistics to date (YYYY-MM-DD)',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Volunteer statistics retrieved successfully',
@@ -229,9 +285,9 @@ export class VolunteersController {
     description: 'Insufficient permissions',
   })
   async getVolunteerStats(
-    @Param('volunteerId', ParseUUIDPipe) volunteerId: string,
+    @Param('volunteerId') volunteerId: string,
     @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string,
+    @Query('endDate') endDate?: string
   ): Promise<VolunteerStatsResponseDto> {
     let parsedStartDate: Date | undefined;
     let parsedEndDate: Date | undefined;
@@ -239,18 +295,26 @@ export class VolunteersController {
     if (startDate) {
       parsedStartDate = new Date(startDate);
       if (isNaN(parsedStartDate.getTime())) {
-        throw new BadRequestException('Invalid start date format. Use YYYY-MM-DD.');
+        throw new BadRequestException(
+          'Invalid start date format. Use YYYY-MM-DD.'
+        );
       }
     }
 
     if (endDate) {
       parsedEndDate = new Date(endDate);
       if (isNaN(parsedEndDate.getTime())) {
-        throw new BadRequestException('Invalid end date format. Use YYYY-MM-DD.');
+        throw new BadRequestException(
+          'Invalid end date format. Use YYYY-MM-DD.'
+        );
       }
     }
 
-    return this.volunteersService.getVolunteerStats(volunteerId, parsedStartDate, parsedEndDate);
+    return this.volunteersService.getVolunteerStats(
+      volunteerId,
+      parsedStartDate,
+      parsedEndDate
+    );
   }
 
   @Get('reports')
@@ -259,11 +323,36 @@ export class VolunteersController {
     summary: 'Generate volunteer reports',
     description: 'Generate comprehensive reports for volunteer activities',
   })
-  @ApiQuery({ name: 'type', required: true, enum: ['summary', 'detailed', 'byActivity', 'monthly'], description: 'Report type' })
-  @ApiQuery({ name: 'startDate', required: false, type: String, description: 'Report from date (YYYY-MM-DD)' })
-  @ApiQuery({ name: 'endDate', required: false, type: String, description: 'Report to date (YYYY-MM-DD)' })
-  @ApiQuery({ name: 'volunteerId', required: false, type: String, description: 'Filter by volunteer ID' })
-  @ApiQuery({ name: 'activityType', required: false, type: String, description: 'Filter by activity type' })
+  @ApiQuery({
+    name: 'type',
+    required: true,
+    enum: ['summary', 'detailed', 'byActivity', 'monthly'],
+    description: 'Report type',
+  })
+  @ApiQuery({
+    name: 'startDate',
+    required: false,
+    type: String,
+    description: 'Report from date (YYYY-MM-DD)',
+  })
+  @ApiQuery({
+    name: 'endDate',
+    required: false,
+    type: String,
+    description: 'Report to date (YYYY-MM-DD)',
+  })
+  @ApiQuery({
+    name: 'volunteerId',
+    required: false,
+    type: String,
+    description: 'Filter by volunteer ID',
+  })
+  @ApiQuery({
+    name: 'activityType',
+    required: false,
+    type: String,
+    description: 'Filter by activity type',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Report generated successfully',
@@ -278,7 +367,9 @@ export class VolunteersController {
   @ApiForbiddenResponse({
     description: 'Insufficient permissions',
   })
-  async generateReports(@Query() query: VolunteerReportQueryDto): Promise<VolunteerReportResponseDto> {
+  async generateReports(
+    @Query() query: VolunteerReportQueryDto
+  ): Promise<VolunteerReportResponseDto> {
     return this.volunteersService.generateReports(query);
   }
 
