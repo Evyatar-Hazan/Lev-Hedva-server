@@ -362,15 +362,19 @@ export class AuthService {
     return userPermissions.map((up) => up.permission.name);
   }
 
-  async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string
+  ): Promise<void> {
     // Get user with password
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { 
-        id: true, 
-        email: true, 
+      select: {
+        id: true,
+        email: true,
         password: true,
-        isActive: true 
+        isActive: true,
       },
     });
 
@@ -379,11 +383,16 @@ export class AuthService {
     }
 
     // Verify current password
-    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    const isCurrentPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password
+    );
     if (!isCurrentPasswordValid) {
       // Log failed password change attempt
-      await this.auditService.logSecurityEvent(
+      await this.auditService.logDataChange(
         AuditActionType.UPDATE,
+        AuditEntityType.USER,
+        userId,
         `ניסיון כושל לשינוי סיסמה: ${user.email}`,
         userId,
         undefined,
@@ -407,8 +416,10 @@ export class AuthService {
     });
 
     // Log successful password change
-    await this.auditService.logSecurityEvent(
+    await this.auditService.logDataChange(
       AuditActionType.UPDATE,
+      AuditEntityType.USER,
+      userId,
       `שינוי סיסמה מוצלח: ${user.email}`,
       userId,
       undefined,
