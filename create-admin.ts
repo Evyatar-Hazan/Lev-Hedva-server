@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 async function createAdmin() {
   try {
     console.log('🔐 Creating admin user with full permissions...');
-    
+
     // Create permissions first
     const permissionsList = [
       { name: 'users.read', description: 'Read users' },
@@ -19,7 +19,10 @@ async function createAdmin() {
       { name: 'loans.write', description: 'Create and update loans' },
       { name: 'loans.delete', description: 'Delete loans' },
       { name: 'volunteers.read', description: 'Read volunteer activities' },
-      { name: 'volunteers.write', description: 'Create and update volunteer activities' },
+      {
+        name: 'volunteers.write',
+        description: 'Create and update volunteer activities',
+      },
       { name: 'volunteers.delete', description: 'Delete volunteer activities' },
       { name: 'audit.read', description: 'Read audit logs' },
       { name: 'permissions.manage', description: 'Manage user permissions' },
@@ -37,9 +40,9 @@ async function createAdmin() {
       createdPermissions.push(created);
     }
     console.log(`✅ Created ${createdPermissions.length} permissions`);
-    
+
     const hashedPassword = await bcrypt.hash('Admin123!', 12);
-    
+
     const admin = await prisma.user.upsert({
       where: { email: 'admin@levhedva.org' },
       update: {
@@ -56,9 +59,9 @@ async function createAdmin() {
         isActive: true,
       },
     });
-    
+
     console.log('✅ Admin user created/updated:', admin.email);
-    
+
     // Assign all permissions to admin
     console.log('🔑 Assigning permissions to admin...');
     for (const permission of createdPermissions) {
@@ -76,7 +79,7 @@ async function createAdmin() {
         },
       });
     }
-    
+
     console.log('✅ All permissions assigned to admin');
     console.log('📧 Email:', admin.email);
     console.log('🔑 Password: Admin123!');
