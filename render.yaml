@@ -37,8 +37,8 @@ services:
     startCommand: |
       # הרצת migrations (רק בפעם הראשונה או כאשר יש שינויים)
       npx prisma migrate deploy
-      # הרצת seed (אופציונלי - הסר הערה אם רוצה)
-      # npx prisma db seed
+      # הרצת seed - זמני! להסיר אחרי deploy ראשון
+      npx prisma db seed
       # הפעלת השרת
       npm run start:prod
     healthCheckPath: /api/health
