@@ -14,10 +14,28 @@ async function bootstrap() {
   app.use(helmet());
   app.use(compression());
 
-  // CORS
+  // CORS - תומך במספר origins לפיתוח ו-production
+  const allowedOrigins = configService
+    .get('CORS_ORIGIN', 'http://localhost:3000')
+    .split(',')
+    .map((origin) => origin.trim());
+
   app.enableCors({
-    origin: configService.get('CORS_ORIGIN', 'http://localhost:3003'),
+    origin: (origin, callback) => {
+      // אפשר בקשות ללא origin (mobile apps, curl, etc.)
+      if (!origin) return callback(null, true);
+
+      // בדוק אם ה-origin מורשה
+      if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Origin ${origin} not allowed by CORS`));
+      }
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    exposedHeaders: ['Authorization'],
   });
 
   // Global pipes
