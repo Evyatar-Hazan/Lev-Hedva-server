@@ -4,16 +4,19 @@
 # קובץ זה מגדיר את כל השירותים הנדרשים לפריסה אוטומטית ב-Render
 # כולל: Web Service, PostgreSQL Database, ו-Environment Variables
 
-services:
+databases:
   # ===================================
   # PostgreSQL Database
   # ===================================
-  - type: pserv
-    name: levhedva-db
-    env: docker
+  - name: levhedva-db
+    databaseName: levhedva
+    user: levhedva
     plan: free # או starter/standard לפי הצורך
     ipAllowList: [] # ריק = מאפשר גישה מכל מקום (נדרש ל-Render services)
+
+services:
     
+services:
   # ===================================
   # Backend Web Service (NestJS)
   # ===================================
@@ -22,6 +25,8 @@ services:
     env: node
     plan: free # או starter/standard לפי הצורך
     region: frankfurt # או oregon, singapore לפי המיקום שלך
+    repo: https://github.com/Evyatar-Hazan/Lev-Hedva-server
+    branch: main
     buildCommand: |
       # התקנת dependencies
       npm install
