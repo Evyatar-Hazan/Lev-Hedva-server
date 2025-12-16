@@ -40,7 +40,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @RequirePermissions('users.write')
+  @RequirePermissions('user:create')
   @ApiOperation({ summary: 'Create a new user' })
   @ApiResponse({
     status: 201,
@@ -57,13 +57,13 @@ export class UsersController {
   })
   async create(
     @Body() createUserDto: CreateUserDto,
-    @GetUser() currentUser: any,
+    @GetUser() currentUser: any
   ): Promise<UserResponseDto> {
     return this.usersService.create(createUserDto, currentUser.userId);
   }
 
   @Get()
-  @RequirePermissions('users.read')
+  @RequirePermissions('user:read')
   @ApiOperation({ summary: 'Get all users with pagination and filtering' })
   @ApiResponse({
     status: 200,
@@ -71,12 +71,14 @@ export class UsersController {
     type: UsersListResponseDto,
   })
   @ApiQuery({ type: QueryUsersDto })
-  async findAll(@Query() queryDto: QueryUsersDto): Promise<UsersListResponseDto> {
+  async findAll(
+    @Query() queryDto: QueryUsersDto
+  ): Promise<UsersListResponseDto> {
     return this.usersService.findAll(queryDto);
   }
 
   @Get(':id')
-  @RequirePermissions('users.read')
+  @RequirePermissions('user:read')
   @ApiOperation({ summary: 'Get user by ID' })
   @ApiParam({ name: 'id', description: 'User ID' })
   @ApiResponse({
@@ -93,7 +95,7 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @RequirePermissions('users.write')
+  @RequirePermissions('user:create')
   @ApiOperation({ summary: 'Update user by ID' })
   @ApiParam({ name: 'id', description: 'User ID' })
   @ApiResponse({
@@ -112,13 +114,13 @@ export class UsersController {
   async update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
-    @GetUser() currentUser: any,
+    @GetUser() currentUser: any
   ): Promise<UserResponseDto> {
     return this.usersService.update(id, updateUserDto, currentUser.userId);
   }
 
   @Delete(':id')
-  @RequirePermissions('users.delete')
+  @RequirePermissions('user:delete')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete user by ID' })
   @ApiParam({ name: 'id', description: 'User ID' })
@@ -136,13 +138,13 @@ export class UsersController {
   })
   async remove(
     @Param('id') id: string,
-    @GetUser() currentUser: any,
+    @GetUser() currentUser: any
   ): Promise<{ message: string }> {
     return this.usersService.remove(id, currentUser.userId);
   }
 
   @Patch(':id/deactivate')
-  @RequirePermissions('users.write')
+  @RequirePermissions('user:create')
   @ApiOperation({ summary: 'Deactivate user' })
   @ApiParam({ name: 'id', description: 'User ID' })
   @ApiResponse({
@@ -156,13 +158,13 @@ export class UsersController {
   })
   async deactivateUser(
     @Param('id') id: string,
-    @GetUser() currentUser: any,
+    @GetUser() currentUser: any
   ): Promise<UserResponseDto> {
     return this.usersService.deactivateUser(id, currentUser.userId);
   }
 
   @Patch(':id/activate')
-  @RequirePermissions('users.write')
+  @RequirePermissions('user:create')
   @ApiOperation({ summary: 'Activate user' })
   @ApiParam({ name: 'id', description: 'User ID' })
   @ApiResponse({
@@ -172,13 +174,13 @@ export class UsersController {
   })
   async activateUser(
     @Param('id') id: string,
-    @GetUser() currentUser: any,
+    @GetUser() currentUser: any
   ): Promise<UserResponseDto> {
     return this.usersService.activateUser(id, currentUser.userId);
   }
 
   @Post(':id/permissions/assign')
-  @RequirePermissions('permissions.manage')
+  @RequirePermissions('admin:users')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Assign permissions to user' })
   @ApiParam({ name: 'id', description: 'User ID' })
@@ -193,17 +195,17 @@ export class UsersController {
   async assignPermissions(
     @Param('id') id: string,
     @Body() assignPermissionsDto: AssignPermissionsDto,
-    @GetUser() currentUser: any,
+    @GetUser() currentUser: any
   ): Promise<{ message: string; permissions: string[] }> {
     return this.usersService.assignPermissions(
       id,
       assignPermissionsDto,
-      currentUser.userId,
+      currentUser.userId
     );
   }
 
   @Post(':id/permissions/revoke')
-  @RequirePermissions('permissions.manage')
+  @RequirePermissions('admin:users')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Revoke permissions from user' })
   @ApiParam({ name: 'id', description: 'User ID' })
@@ -218,17 +220,17 @@ export class UsersController {
   async revokePermissions(
     @Param('id') id: string,
     @Body() revokePermissionsDto: RevokePermissionsDto,
-    @GetUser() currentUser: any,
+    @GetUser() currentUser: any
   ): Promise<{ message: string; permissions: string[] }> {
     return this.usersService.revokePermissions(
       id,
       revokePermissionsDto,
-      currentUser.userId,
+      currentUser.userId
     );
   }
 
   @Get(':id/permissions')
-  @RequirePermissions('users.read')
+  @RequirePermissions('user:read')
   @ApiOperation({ summary: 'Get user permissions' })
   @ApiParam({ name: 'id', description: 'User ID' })
   @ApiResponse({
@@ -245,7 +247,7 @@ export class UsersController {
     },
   })
   async getUserPermissions(
-    @Param('id') id: string,
+    @Param('id') id: string
   ): Promise<{ permissions: string[] }> {
     const permissions = await this.usersService.getUserPermissions(id);
     return { permissions };

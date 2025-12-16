@@ -41,7 +41,7 @@ export class LoansController {
   constructor(private readonly loansService: LoansService) {}
 
   @Post()
-  @RequirePermissions('loans.write')
+  @RequirePermissions('loan:create')
   @ApiOperation({ summary: 'יצירת השאלה חדשה' })
   @ApiResponse({
     status: 201,
@@ -57,7 +57,7 @@ export class LoansController {
   }
 
   @Get()
-  @RequirePermissions('loans.read')
+  @RequirePermissions('loan:read')
   @ApiOperation({ summary: 'קבלת רשימת השאלות עם סינון וחיפוש' })
   @ApiResponse({
     status: 200,
@@ -71,7 +71,7 @@ export class LoansController {
   }
 
   @Get('stats')
-  @RequirePermissions('loans.read')
+  @RequirePermissions('loan:read')
   @ApiOperation({ summary: 'קבלת סטטיסטיקות השאלות' })
   @ApiResponse({
     status: 200,
@@ -83,7 +83,7 @@ export class LoansController {
   }
 
   @Get('overdue')
-  @RequirePermissions('loans.read')
+  @RequirePermissions('loan:read')
   @ApiOperation({ summary: 'קבלת רשימת השאלות באיחור' })
   @ApiResponse({
     status: 200,
@@ -95,7 +95,7 @@ export class LoansController {
   }
 
   @Get('active')
-  @RequirePermissions('loans.read')
+  @RequirePermissions('loan:read')
   @ApiOperation({ summary: 'קבלת רשימת השאלות פעילות' })
   @ApiResponse({
     status: 200,
@@ -107,7 +107,7 @@ export class LoansController {
   }
 
   @Get('my-loans')
-  @RequirePermissions('loans.read')
+  @RequirePermissions('loan:read')
   @ApiOperation({ summary: 'קבלת ההשאלות הפעילות של המשתמש הנוכחי' })
   @ApiResponse({
     status: 200,
@@ -121,7 +121,7 @@ export class LoansController {
   }
 
   @Get('user/:userId')
-  @RequirePermissions('loans.read')
+  @RequirePermissions('loan:read')
   @ApiOperation({ summary: 'קבלת ההשאלות הפעילות של משתמש ספציפי' })
   @ApiParam({ name: 'userId', description: 'מזהה משתמש' })
   @ApiResponse({
@@ -136,7 +136,7 @@ export class LoansController {
   }
 
   @Get(':id')
-  @RequirePermissions('loans.read')
+  @RequirePermissions('loan:read')
   @ApiOperation({ summary: 'קבלת השאלה לפי ID' })
   @ApiParam({ name: 'id', description: 'מזהה השאלה' })
   @ApiResponse({
@@ -150,7 +150,7 @@ export class LoansController {
   }
 
   @Put(':id')
-  @RequirePermissions('loans.write')
+  @RequirePermissions('loan:create')
   @ApiOperation({ summary: 'עדכון השאלה' })
   @ApiParam({ name: 'id', description: 'מזהה השאלה' })
   @ApiResponse({
@@ -168,7 +168,7 @@ export class LoansController {
   }
 
   @Patch(':id/return')
-  @RequirePermissions('loans.write')
+  @RequirePermissions('loan:create')
   @ApiOperation({ summary: 'החזרת השאלה' })
   @ApiParam({ name: 'id', description: 'מזהה השאלה' })
   @ApiResponse({
@@ -186,7 +186,7 @@ export class LoansController {
   }
 
   @Patch('return')
-  @RequirePermissions('loans.write')
+  @RequirePermissions('loan:create')
   @ApiOperation({ summary: 'החזרת השאלה' })
   @ApiResponse({
     status: 200,
@@ -202,7 +202,7 @@ export class LoansController {
   }
 
   @Patch(':id/mark-lost')
-  @RequirePermissions('loans.write')
+  @RequirePermissions('loan:create')
   @ApiOperation({ summary: 'סימון השאלה כאבודה' })
   @ApiParam({ name: 'id', description: 'מזהה השאלה' })
   @ApiResponse({

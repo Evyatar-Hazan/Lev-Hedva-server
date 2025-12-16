@@ -47,7 +47,7 @@ export class ProductsController {
 
   // Product endpoints
   @Post()
-  @RequirePermissions('products.write')
+  @RequirePermissions('product:create')
   @ApiOperation({ summary: 'יצירת מוצר חדש' })
   @ApiResponse({
     status: 201,
@@ -65,7 +65,7 @@ export class ProductsController {
   }
 
   @Get()
-  @RequirePermissions('products.read')
+  @RequirePermissions('product:read')
   @ApiOperation({ summary: 'קבלת רשימת מוצרים עם סינון וחיפוש' })
   @ApiResponse({
     status: 200,
@@ -79,7 +79,7 @@ export class ProductsController {
   }
 
   @Get('categories')
-  @RequirePermissions('products.read')
+  @RequirePermissions('product:read')
   @ApiOperation({ summary: 'קבלת רשימת קטגוריות מוצרים' })
   @ApiResponse({ status: 200, description: 'רשימת קטגוריות', type: [String] })
   async getProductCategories(): Promise<string[]> {
@@ -87,7 +87,7 @@ export class ProductsController {
   }
 
   @Get('manufacturers')
-  @RequirePermissions('products.read')
+  @RequirePermissions('product:read')
   @ApiOperation({ summary: 'קבלת רשימת יצרנים' })
   @ApiResponse({ status: 200, description: 'רשימת יצרנים', type: [String] })
   async getProductManufacturers(): Promise<string[]> {
@@ -96,7 +96,7 @@ export class ProductsController {
 
   // Product Instance endpoints
   @Post('instances')
-  @RequirePermissions('products.write')
+  @RequirePermissions('product:update')
   @ApiOperation({ summary: 'יצירת פריט מוצר חדש' })
   @ApiResponse({
     status: 201,
@@ -112,7 +112,7 @@ export class ProductsController {
   }
 
   @Get('instances')
-  @RequirePermissions('products.read')
+  @RequirePermissions('product:read')
   @ApiOperation({ summary: 'קבלת רשימת פריטי מוצרים עם סינון וחיפוש' })
   @ApiResponse({
     status: 200,
@@ -126,7 +126,7 @@ export class ProductsController {
   }
 
   @Get('instances/conditions')
-  @RequirePermissions('products.read')
+  @RequirePermissions('product:read')
   @ApiOperation({ summary: 'קבלת רשימת מצבי פריטים' })
   @ApiResponse({
     status: 200,
@@ -138,7 +138,7 @@ export class ProductsController {
   }
 
   @Get('instances/locations')
-  @RequirePermissions('products.read')
+  @RequirePermissions('product:read')
   @ApiOperation({ summary: 'קבלת רשימת מיקומי פריטים' })
   @ApiResponse({
     status: 200,
@@ -150,7 +150,7 @@ export class ProductsController {
   }
 
   @Get('instances/barcode/:barcode')
-  @RequirePermissions('products.read')
+  @RequirePermissions('product:read')
   @ApiOperation({ summary: 'חיפוש פריט לפי ברקוד' })
   @ApiParam({ name: 'barcode', description: 'ברקוד פריט' })
   @ApiResponse({
@@ -166,7 +166,7 @@ export class ProductsController {
   }
 
   @Get('instances/:id')
-  @RequirePermissions('products.read')
+  @RequirePermissions('product:read')
   @ApiOperation({ summary: 'קבלת פריט לפי ID' })
   @ApiParam({ name: 'id', description: 'מזהה פריט' })
   @ApiResponse({
@@ -182,7 +182,7 @@ export class ProductsController {
   }
 
   @Put('instances/:id')
-  @RequirePermissions('products.write')
+  @RequirePermissions('product:update')
   @ApiOperation({ summary: 'עדכון פריט מוצר' })
   @ApiParam({ name: 'id', description: 'מזהה פריט' })
   @ApiResponse({
@@ -200,7 +200,7 @@ export class ProductsController {
   }
 
   @Delete('instances/:id')
-  @RequirePermissions('products.delete')
+  @RequirePermissions('product:delete')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'מחיקת פריט מוצר' })
   @ApiParam({ name: 'id', description: 'מזהה פריט' })
@@ -213,7 +213,7 @@ export class ProductsController {
 
   // Product-specific routes moved after more specific 'instances' routes to avoid route parameter collision
   @Get(':id')
-  @RequirePermissions('products.read')
+  @RequirePermissions('product:read')
   @ApiOperation({ summary: 'קבלת מוצר לפי ID' })
   @ApiParam({ name: 'id', description: 'מזהה מוצר' })
   @ApiResponse({
@@ -227,7 +227,7 @@ export class ProductsController {
   }
 
   @Put(':id')
-  @RequirePermissions('products.write')
+  @RequirePermissions('product:update')
   @ApiOperation({ summary: 'עדכון מוצר' })
   @ApiParam({ name: 'id', description: 'מזהה מוצר' })
   @ApiResponse({
@@ -248,7 +248,7 @@ export class ProductsController {
   }
 
   @Delete(':id')
-  @RequirePermissions('products.delete')
+  @RequirePermissions('product:delete')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'מחיקת מוצר' })
   @ApiParam({ name: 'id', description: 'מזהה מוצר' })
