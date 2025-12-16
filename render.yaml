@@ -34,10 +34,8 @@ services:
       npx prisma generate
       # בניית הפרויקט
       npm run build
-      # הרצת migration אוטומטי של הרשאות
-      npm run postdeploy
     startCommand: |
-      # הרצת migrations (רק בפעם הראשונה או כאשר יש שינויים)
+      # הרצת כל ה-migrations שטרם רצו (כולל data migrations)
       npx prisma migrate deploy
       # הפעלת השרת
       npm run start:prod

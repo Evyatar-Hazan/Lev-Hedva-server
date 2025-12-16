@@ -579,8 +579,7 @@
     "prisma:push": "prisma db push",
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
-    "postdeploy": "npm run prisma:generate && npm run migrate:permissions",
-    "migrate:permissions": "ts-node prisma/migrations/update-permissions.ts",
+    "postdeploy": "npm run prisma:deploy",
     "prisma:seed": "ts-node prisma/seed.ts",
     "db:reset": "prisma migrate reset --force",
     "prepare": "husky"
