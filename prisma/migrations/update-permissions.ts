@@ -11,17 +11,17 @@ async function main() {
     { old: 'users.read', new: 'user:read' },
     { old: 'users.write', new: 'user:create' },
     { old: 'users.delete', new: 'user:delete' },
-    
+
     // Product permissions
     { old: 'products.read', new: 'product:read' },
     { old: 'products.write', new: 'product:create' },
     { old: 'products.delete', new: 'product:delete' },
-    
+
     // Loan permissions
     { old: 'loans.read', new: 'loan:read' },
     { old: 'loans.write', new: 'loan:create' },
     { old: 'loans.delete', new: 'loan:delete' },
-    
+
     // Admin permissions
     { old: 'permissions.manage', new: 'admin:users' },
     { old: 'audit.read', new: 'admin:audit' },

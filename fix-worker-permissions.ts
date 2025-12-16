@@ -44,12 +44,10 @@ async function main() {
   ];
 
   const workerPermissions = allPermissions.filter((p) =>
-    workerPermissionNames.includes(p.name),
+    workerPermissionNames.includes(p.name)
   );
 
-  console.log(
-    `🔑 Worker should have ${workerPermissions.length} permissions:`,
-  );
+  console.log(`🔑 Worker should have ${workerPermissions.length} permissions:`);
   console.log(workerPermissions.map((p) => p.name).join(', '));
 
   // For each worker, assign all worker permissions

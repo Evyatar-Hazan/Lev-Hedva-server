@@ -40,16 +40,19 @@ startCommand: |
 ## יתרונות Prisma Migrations
 
 ### 🎯 חכם ויעיל
+
 - רץ **רק** migrations שטרם הופעלו
 - לא משנה כמה פעמים תעשה deploy
 - שומר נתונים קיימים
 
 ### 🔒 בטוח לחלוטין
+
 - כל migration עובר בדיקה
 - אפשר לבדוק ב-development לפני production
 - Rollback אפשרי במקרה של בעיה
 
 ### 📦 Version Control
+
 - כל migration בגיט
 - היסטוריה מלאה של שינויים
 - אפשר לעקוב אחרי מה השתנה ומתי
@@ -93,11 +96,13 @@ git push
 ## דוגמה: Migration של עדכון הרשאות
 
 הקובץ:
+
 ```
 prisma/migrations/20251216130854_update_permissions_format/migration.sql
 ```
 
 מכיל SQL שמעדכן:
+
 - ✅ שמות הרשאות קיימות
 - ✅ יוצר הרשאות חדשות
 - ✅ מעדכן קשרים למשתמשים
@@ -144,22 +149,24 @@ git push
 אם לא משתמש בקובץ `render.yaml`:
 
 ### Build Command
+
 ```bash
 npm install && npx prisma generate && npm run build
 ```
 
-### Start Command  
+### Start Command
+
 ```bash
 npx prisma migrate deploy && npm run start:prod
 ```
 
 ## סיכום - למה זה מושלם?
 
-✅ **אוטומטי** - Push לגיט = עדכון אוטומטי  
-✅ **בטוח** - רק migrations חדשים רצים  
-✅ **חכם** - Prisma יודע מה כבר רץ  
-✅ **Version Control** - היסטוריה מלאה  
-✅ **שומר נתונים** - אף פעם לא מוחק נתונים קיימים  
+✅ **אוטומטי** - Push לגיט = עדכון אוטומטי
+✅ **בטוח** - רק migrations חדשים רצים
+✅ **חכם** - Prisma יודע מה כבר רץ
+✅ **Version Control** - היסטוריה מלאה
+✅ **שומר נתונים** - אף פעם לא מוחק נתונים קיימים
 ✅ **כללי** - עובד לכל שינוי בבסיס נתונים
 
 ## זרימת עבודה מומלצת
@@ -183,4 +190,3 @@ git push origin main
 ```
 
 **זהו! אין צורך לעשות יותר כלום ידנית! 🎉**
-

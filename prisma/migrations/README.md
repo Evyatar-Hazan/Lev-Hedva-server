@@ -9,11 +9,13 @@ Use this script when you need to update permissions in production without resett
 ## How to run
 
 ### Development
+
 ```bash
 npx ts-node prisma/migrations/update-permissions.ts
 ```
 
 ### Production
+
 ```bash
 # Using npx
 npx ts-node prisma/migrations/update-permissions.ts
@@ -32,19 +34,19 @@ ts-node prisma/migrations/update-permissions.ts
 
 ## Permission mappings
 
-| Old Format | New Format |
-|------------|-----------|
-| users.read | user:read |
-| users.write | user:create |
-| users.delete | user:delete |
-| products.read | product:read |
-| products.write | product:create |
-| products.delete | product:delete |
-| loans.read | loan:read |
-| loans.write | loan:create |
-| loans.delete | loan:delete |
-| permissions.manage | admin:users |
-| audit.read | admin:audit |
+| Old Format         | New Format     |
+| ------------------ | -------------- |
+| users.read         | user:read      |
+| users.write        | user:create    |
+| users.delete       | user:delete    |
+| products.read      | product:read   |
+| products.write     | product:create |
+| products.delete    | product:delete |
+| loans.read         | loan:read      |
+| loans.write        | loan:create    |
+| loans.delete       | loan:delete    |
+| permissions.manage | admin:users    |
+| audit.read         | admin:audit    |
 
 ## New permissions added
 
