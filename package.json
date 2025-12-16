@@ -578,7 +578,7 @@
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:deploy": "prisma migrate deploy",
+    "prisma:deploy": "bash scripts/pre-migrate.sh && prisma migrate deploy",
     "postdeploy": "npm run prisma:deploy",
     "prisma:seed": "ts-node prisma/seed.ts",
     "db:reset": "prisma migrate reset --force",
