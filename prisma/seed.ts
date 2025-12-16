@@ -9,20 +9,26 @@ async function main() {
   // Create basic permissions
   const permissions = [
     // User permissions
-    { name: 'users.read', description: 'Read users' },
-    { name: 'users.write', description: 'Create and update users' },
-    { name: 'users.delete', description: 'Delete users' },
-    
+    { name: 'user:read', description: 'Read users' },
+    { name: 'user:create', description: 'Create users' },
+    { name: 'user:update', description: 'Update users' },
+    { name: 'user:delete', description: 'Delete users' },
+
     // Product permissions
-    { name: 'products.read', description: 'Read products' },
-    { name: 'products.write', description: 'Create and update products' },
-    { name: 'products.delete', description: 'Delete products' },
-    
+    { name: 'product:read', description: 'Read products' },
+    { name: 'product:create', description: 'Create products' },
+    { name: 'product:update', description: 'Update products' },
+    { name: 'product:delete', description: 'Delete products' },
+    { name: 'product:manage', description: 'Manage products' },
+
     // Loan permissions
-    { name: 'loans.read', description: 'Read loans' },
-    { name: 'loans.write', description: 'Create and update loans' },
-    { name: 'loans.delete', description: 'Delete loans' },
-    
+    { name: 'loan:read', description: 'Read loans' },
+    { name: 'loan:create', description: 'Create loans' },
+    { name: 'loan:update', description: 'Update loans' },
+    { name: 'loan:delete', description: 'Delete loans' },
+    { name: 'loan:return', description: 'Return loans' },
+    { name: 'loan:overdue', description: 'Manage overdue loans' },
+
     // Volunteer permissions (using new format from permissions.constants.ts)
     { name: 'volunteer:read', description: 'Read volunteer activities' },
     { name: 'volunteer:create', description: 'Create volunteer activities' },
@@ -30,10 +36,12 @@ async function main() {
     { name: 'volunteer:delete', description: 'Delete volunteer activities' },
     { name: 'volunteer:stats', description: 'View volunteer statistics' },
     { name: 'volunteer:reports', description: 'Generate volunteer reports' },
-    
+
     // Admin permissions
-    { name: 'permissions.manage', description: 'Manage user permissions' },
-    { name: 'audit.read', description: 'Read audit logs' },
+    { name: 'admin:full', description: 'Full admin access' },
+    { name: 'admin:users', description: 'Manage users' },
+    { name: 'admin:system', description: 'System administration' },
+    { name: 'admin:audit', description: 'Audit logs access' },
   ];
 
   console.log('📋 Creating permissions...');
@@ -103,13 +111,18 @@ async function main() {
 
   // Assign worker permissions - can access everything except user management and audit
   const workerPermissions = [
-    'users.read',
-    'products.read',
-    'products.write',
-    'products.delete',
-    'loans.read',
-    'loans.write',
-    'loans.delete',
+    'user:read',
+    'product:read',
+    'product:create',
+    'product:update',
+    'product:delete',
+    'product:manage',
+    'loan:read',
+    'loan:create',
+    'loan:update',
+    'loan:delete',
+    'loan:return',
+    'loan:overdue',
     'volunteer:read',
     'volunteer:create',
     'volunteer:update',
@@ -118,7 +131,7 @@ async function main() {
     'volunteer:reports',
   ];
   for (const permName of workerPermissions) {
-    const permission = createdPermissions.find(p => p.name === permName);
+    const permission = createdPermissions.find((p) => p.name === permName);
     if (permission) {
       await prisma.userPermission.upsert({
         where: {
@@ -156,9 +169,15 @@ async function main() {
   });
 
   // Assign volunteer permissions
-  const volunteerPermissions = ['products.read', 'loans.read', 'volunteer:read', 'volunteer:create', 'volunteer:update'];
+  const volunteerPermissions = [
+    'product:read',
+    'loan:read',
+    'volunteer:read',
+    'volunteer:create',
+    'volunteer:update',
+  ];
   for (const permName of volunteerPermissions) {
-    const permission = createdPermissions.find(p => p.name === permName);
+    const permission = createdPermissions.find((p) => p.name === permName);
     if (permission) {
       await prisma.userPermission.upsert({
         where: {
@@ -197,7 +216,7 @@ async function main() {
 
   // Create sample products
   console.log('📦 Creating sample products...');
-  
+
   const wheelchairProduct = await prisma.product.create({
     data: {
       name: 'כסא גלגלים סטנדרטי',
@@ -230,23 +249,83 @@ async function main() {
 
   // Create product instances
   console.log('📋 Creating product instances...');
-  
+
   const productInstances = [
     // Wheelchair instances
-    { productId: wheelchairProduct.id, barcode: 'WC001', serialNumber: 'KM2500-001', location: 'מחסן א׳', condition: 'excellent' },
-    { productId: wheelchairProduct.id, barcode: 'WC002', serialNumber: 'KM2500-002', location: 'מחסן א׳', condition: 'good' },
-    { productId: wheelchairProduct.id, barcode: 'WC003', serialNumber: 'KM2500-003', location: 'מוקד שירות', condition: 'fair' },
-    
+    {
+      productId: wheelchairProduct.id,
+      barcode: 'WC001',
+      serialNumber: 'KM2500-001',
+      location: 'מחסן א׳',
+      condition: 'excellent',
+    },
+    {
+      productId: wheelchairProduct.id,
+      barcode: 'WC002',
+      serialNumber: 'KM2500-002',
+      location: 'מחסן א׳',
+      condition: 'good',
+    },
+    {
+      productId: wheelchairProduct.id,
+      barcode: 'WC003',
+      serialNumber: 'KM2500-003',
+      location: 'מוקד שירות',
+      condition: 'fair',
+    },
+
     // Walker instances
-    { productId: walkerProduct.id, barcode: 'WK001', serialNumber: 'DM-PRO-001', location: 'מחסן ב׳', condition: 'excellent' },
-    { productId: walkerProduct.id, barcode: 'WK002', serialNumber: 'DM-PRO-002', location: 'מחסן ב׳', condition: 'good' },
-    { productId: walkerProduct.id, barcode: 'WK003', serialNumber: 'DM-PRO-003', location: 'מוקד שירות', condition: 'good' },
-    
+    {
+      productId: walkerProduct.id,
+      barcode: 'WK001',
+      serialNumber: 'DM-PRO-001',
+      location: 'מחסן ב׳',
+      condition: 'excellent',
+    },
+    {
+      productId: walkerProduct.id,
+      barcode: 'WK002',
+      serialNumber: 'DM-PRO-002',
+      location: 'מחסן ב׳',
+      condition: 'good',
+    },
+    {
+      productId: walkerProduct.id,
+      barcode: 'WK003',
+      serialNumber: 'DM-PRO-003',
+      location: 'מוקד שירות',
+      condition: 'good',
+    },
+
     // Bed instances
-    { productId: bedProduct.id, barcode: 'BD001', serialNumber: 'HR1000-001', location: 'מחסן ג׳', condition: 'excellent' },
-    { productId: bedProduct.id, barcode: 'BD002', serialNumber: 'HR1000-002', location: 'מחסן ג׳', condition: 'good' },
-    { productId: bedProduct.id, barcode: 'BD003', serialNumber: 'HR1000-003', location: 'מוקד שירות', condition: 'fair' },
-    { productId: bedProduct.id, barcode: 'BD004', serialNumber: 'HR1000-004', location: 'מחסן ג׳', condition: 'excellent' },
+    {
+      productId: bedProduct.id,
+      barcode: 'BD001',
+      serialNumber: 'HR1000-001',
+      location: 'מחסן ג׳',
+      condition: 'excellent',
+    },
+    {
+      productId: bedProduct.id,
+      barcode: 'BD002',
+      serialNumber: 'HR1000-002',
+      location: 'מחסן ג׳',
+      condition: 'good',
+    },
+    {
+      productId: bedProduct.id,
+      barcode: 'BD003',
+      serialNumber: 'HR1000-003',
+      location: 'מוקד שירות',
+      condition: 'fair',
+    },
+    {
+      productId: bedProduct.id,
+      barcode: 'BD004',
+      serialNumber: 'HR1000-004',
+      location: 'מחסן ג׳',
+      condition: 'excellent',
+    },
   ];
 
   for (const instance of productInstances) {
@@ -261,7 +340,7 @@ async function main() {
   console.log(`   👥 4 users (admin, worker, volunteer, client)`);
   console.log(`   📦 3 products`);
   console.log(`   📋 ${productInstances.length} product instances`);
-  
+
   console.log('\n🔐 Login credentials:');
   console.log('   Admin:     admin@levhedva.org / Admin123!@#');
   console.log('   Worker:    worker@levhedva.org / Worker123!');

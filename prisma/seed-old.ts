@@ -12,17 +12,17 @@ async function main() {
     { name: 'users.read', description: 'Read users' },
     { name: 'users.write', description: 'Create and update users' },
     { name: 'users.delete', description: 'Delete users' },
-    
+
     // Product permissions
     { name: 'products.read', description: 'Read products' },
     { name: 'products.write', description: 'Create and update products' },
     { name: 'products.delete', description: 'Delete products' },
-    
+
     // Loan permissions
     { name: 'loans.read', description: 'Read loans' },
     { name: 'loans.write', description: 'Create and update loans' },
     { name: 'loans.delete', description: 'Delete loans' },
-    
+
     // Volunteer permissions (using new format from permissions.constants.ts)
     { name: 'volunteer:read', description: 'Read volunteer activities' },
     { name: 'volunteer:create', description: 'Create volunteer activities' },
@@ -30,7 +30,7 @@ async function main() {
     { name: 'volunteer:delete', description: 'Delete volunteer activities' },
     { name: 'volunteer:stats', description: 'View volunteer statistics' },
     { name: 'volunteer:reports', description: 'Generate volunteer reports' },
-    
+
     // Admin permissions
     { name: 'permissions.manage', description: 'Manage user permissions' },
     { name: 'audit.read', description: 'Read audit logs' },
@@ -48,7 +48,7 @@ async function main() {
   // Create admin user
   console.log('👤 Creating admin user...');
   const hashedPassword = await bcrypt.hash('Admin123!@#', 12);
-  
+
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@levhedva.org' },
     update: {},
@@ -66,7 +66,7 @@ async function main() {
   // Give admin all permissions
   console.log('🔑 Assigning permissions to admin...');
   const allPermissions = await prisma.permission.findMany();
-  
+
   for (const permission of allPermissions) {
     await prisma.userPermission.upsert({
       where: {
@@ -86,7 +86,7 @@ async function main() {
   // Create sample worker
   console.log('👷 Creating sample worker...');
   const workerPassword = await bcrypt.hash('Worker123!', 12);
-  
+
   const worker = await prisma.user.upsert({
     where: { email: 'worker@levhedva.org' },
     update: {},
@@ -118,7 +118,9 @@ async function main() {
     'volunteer:reports',
   ];
   for (const permName of workerPermissions) {
-    const permission = await prisma.permission.findUnique({ where: { name: permName } });
+    const permission = await prisma.permission.findUnique({
+      where: { name: permName },
+    });
     if (permission) {
       await prisma.userPermission.upsert({
         where: {
@@ -139,7 +141,7 @@ async function main() {
   // Create sample volunteer
   console.log('🤝 Creating sample volunteer...');
   const volunteerPassword = await bcrypt.hash('Volunteer123!', 12);
-  
+
   const volunteer = await prisma.user.upsert({
     where: { email: 'volunteer@levhedva.org' },
     update: {},
@@ -155,9 +157,16 @@ async function main() {
   });
 
   // Give volunteer basic permissions
-  const volunteerPermissions = ['products.read', 'volunteer:read', 'volunteer:create', 'volunteer:update'];
+  const volunteerPermissions = [
+    'products.read',
+    'volunteer:read',
+    'volunteer:create',
+    'volunteer:update',
+  ];
   for (const permName of volunteerPermissions) {
-    const permission = await prisma.permission.findUnique({ where: { name: permName } });
+    const permission = await prisma.permission.findUnique({
+      where: { name: permName },
+    });
     if (permission) {
       await prisma.userPermission.upsert({
         where: {
@@ -178,7 +187,7 @@ async function main() {
   // Create sample client
   console.log('👤 Creating sample client...');
   const clientPassword = await bcrypt.hash('Client123!', 12);
-  
+
   await prisma.user.upsert({
     where: { email: 'client@example.com' },
     update: {},
@@ -195,7 +204,7 @@ async function main() {
 
   // Create sample products
   console.log('📦 Creating sample products...');
-  
+
   const wheelchairProduct = await prisma.product.upsert({
     where: { id: 1 },
     update: {},
@@ -234,7 +243,7 @@ async function main() {
 
   // Create sample product instances
   console.log('🏷️ Creating sample product instances...');
-  
+
   // Wheelchair instances
   for (let i = 1; i <= 3; i++) {
     await prisma.productInstance.upsert({
@@ -283,7 +292,7 @@ async function main() {
 
   // Create sample volunteer activities
   console.log('📊 Creating sample volunteer activities...');
-  
+
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
