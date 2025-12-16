@@ -8,21 +8,32 @@ async function main() {
 
   // Create basic permissions
   const permissions = [
+    // User permissions
     { name: 'users.read', description: 'Read users' },
     { name: 'users.write', description: 'Create and update users' },
     { name: 'users.delete', description: 'Delete users' },
+    
+    // Product permissions
     { name: 'products.read', description: 'Read products' },
     { name: 'products.write', description: 'Create and update products' },
     { name: 'products.delete', description: 'Delete products' },
+    
+    // Loan permissions
     { name: 'loans.read', description: 'Read loans' },
     { name: 'loans.write', description: 'Create and update loans' },
     { name: 'loans.delete', description: 'Delete loans' },
-    { name: 'volunteers.read', description: 'Read volunteer activities' },
-    { name: 'volunteers.write', description: 'Create and update volunteer activities' },
-    { name: 'volunteers.delete', description: 'Delete volunteer activities' },
-    { name: 'audit.read', description: 'Read audit logs' },
+    
+    // Volunteer permissions (using new format from permissions.constants.ts)
+    { name: 'volunteer:read', description: 'Read volunteer activities' },
+    { name: 'volunteer:create', description: 'Create volunteer activities' },
+    { name: 'volunteer:update', description: 'Update volunteer activities' },
+    { name: 'volunteer:delete', description: 'Delete volunteer activities' },
+    { name: 'volunteer:stats', description: 'View volunteer statistics' },
+    { name: 'volunteer:reports', description: 'Generate volunteer reports' },
+    
+    // Admin permissions
     { name: 'permissions.manage', description: 'Manage user permissions' },
-    { name: 'system.admin', description: 'Full system administration' },
+    { name: 'audit.read', description: 'Read audit logs' },
   ];
 
   console.log('📋 Creating permissions...');
@@ -90,8 +101,22 @@ async function main() {
     },
   });
 
-  // Assign worker permissions
-  const workerPermissions = ['users.read', 'users.write', 'products.read', 'products.write', 'loans.read', 'loans.write'];
+  // Assign worker permissions - can access everything except user management and audit
+  const workerPermissions = [
+    'users.read',
+    'products.read',
+    'products.write',
+    'products.delete',
+    'loans.read',
+    'loans.write',
+    'loans.delete',
+    'volunteer:read',
+    'volunteer:create',
+    'volunteer:update',
+    'volunteer:delete',
+    'volunteer:stats',
+    'volunteer:reports',
+  ];
   for (const permName of workerPermissions) {
     const permission = createdPermissions.find(p => p.name === permName);
     if (permission) {
@@ -131,7 +156,7 @@ async function main() {
   });
 
   // Assign volunteer permissions
-  const volunteerPermissions = ['products.read', 'loans.read', 'volunteers.write'];
+  const volunteerPermissions = ['products.read', 'loans.read', 'volunteer:read', 'volunteer:create', 'volunteer:update'];
   for (const permName of volunteerPermissions) {
     const permission = createdPermissions.find(p => p.name === permName);
     if (permission) {
@@ -156,7 +181,7 @@ async function main() {
   console.log('👥 Creating client user...');
   const clientPassword = await bcrypt.hash('Client123!', 12);
 
-  const clientUser = await prisma.user.upsert({
+  const _clientUser = await prisma.user.upsert({
     where: { email: 'client@example.com' },
     update: {},
     create: {

@@ -6,7 +6,12 @@ import {
   UseInterceptors,
   Req,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionGuard } from '../auth/guards/permission.guard';
 import { RequirePermissions } from '../auth/decorators/permissions.decorator';
@@ -23,19 +28,17 @@ export class AuditController {
   constructor(private readonly auditService: AuditService) {}
 
   @Get()
-  @RequirePermissions(PERMISSIONS.SYSTEM_MANAGE)
-  @ApiOperation({ 
+  @RequirePermissions(PERMISSIONS.AUDIT_READ)
+  @ApiOperation({
     summary: 'קבלת רשימת לוגי ביקורת',
-    description: 'מחזיר רשימה מסוננת של לוגי ביקורת עם פיילטרים וסורטינג'
+    description: 'מחזיר רשימה מסוננת של לוגי ביקורת עם פיילטרים וסורטינג',
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'רשימת לוגי הביקורת',
-    type: [AuditLogResponseDto]
+    type: [AuditLogResponseDto],
   })
-  async getAuditLogs(
-    @Query() query: AuditLogsQueryDto,
-  ): Promise<{
+  async getAuditLogs(@Query() query: AuditLogsQueryDto): Promise<{
     data: AuditLogResponseDto[];
     total: number;
     page: number;
@@ -46,13 +49,13 @@ export class AuditController {
   }
 
   @Get('statistics')
-  @RequirePermissions(PERMISSIONS.SYSTEM_MANAGE)
-  @ApiOperation({ 
+  @RequirePermissions(PERMISSIONS.AUDIT_READ)
+  @ApiOperation({
     summary: 'קבלת סטטיסטיקות ביקורת',
-    description: 'מחזיר סטטיסטיקות על פעילויות המערכת'
+    description: 'מחזיר סטטיסטיקות על פעילויות המערכת',
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'סטטיסטיקות ביקורת',
     schema: {
       type: 'object',
@@ -61,12 +64,12 @@ export class AuditController {
         actionBreakdown: {
           type: 'object',
           description: 'פילוח לפי פעולות',
-          additionalProperties: { type: 'number' }
+          additionalProperties: { type: 'number' },
         },
         entityBreakdown: {
           type: 'object',
           description: 'פילוח לפי יישויות',
-          additionalProperties: { type: 'number' }
+          additionalProperties: { type: 'number' },
         },
         errorCount: { type: 'number', description: 'מספר שגיאות' },
         topUsers: {
@@ -77,17 +80,17 @@ export class AuditController {
             properties: {
               userId: { type: 'string' },
               userName: { type: 'string' },
-              count: { type: 'number' }
-            }
-          }
+              count: { type: 'number' },
+            },
+          },
         },
         recentActivity: {
           type: 'array',
           description: 'פעילות אחרונה',
-          items: { $ref: '#/components/schemas/AuditLogResponseDto' }
-        }
-      }
-    }
+          items: { $ref: '#/components/schemas/AuditLogResponseDto' },
+        },
+      },
+    },
   })
   async getAuditStatistics(): Promise<{
     totalLogs: number;
@@ -105,46 +108,46 @@ export class AuditController {
   }
 
   @Get('actions')
-  @RequirePermissions(PERMISSIONS.SYSTEM_MANAGE)
-  @ApiOperation({ 
+  @RequirePermissions(PERMISSIONS.AUDIT_READ)
+  @ApiOperation({
     summary: 'קבלת רשימת פעולות זמינות',
-    description: 'מחזיר רשימה של כל הפעולות הקיימות במערכת לצורך פילטור'
+    description: 'מחזיר רשימה של כל הפעולות הקיימות במערכת לצורך פילטור',
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'רשימת פעולות',
     schema: {
       type: 'object',
       properties: {
         actions: {
           type: 'array',
-          items: { type: 'string' }
-        }
-      }
-    }
+          items: { type: 'string' },
+        },
+      },
+    },
   })
   async getAvailableActions(): Promise<{ actions: string[] }> {
     return this.auditService.getAvailableActions();
   }
 
   @Get('entities')
-  @RequirePermissions(PERMISSIONS.SYSTEM_MANAGE)
-  @ApiOperation({ 
+  @RequirePermissions(PERMISSIONS.AUDIT_READ)
+  @ApiOperation({
     summary: 'קבלת רשימת יישויות זמינות',
-    description: 'מחזיר רשימה של כל היישויות הקיימות במערכת לצורך פילטור'
+    description: 'מחזיר רשימה של כל היישויות הקיימות במערכת לצורך פילטור',
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'רשימת יישויות',
     schema: {
       type: 'object',
       properties: {
         entities: {
           type: 'array',
-          items: { type: 'string' }
-        }
-      }
-    }
+          items: { type: 'string' },
+        },
+      },
+    },
   })
   async getAvailableEntities(): Promise<{ entities: string[] }> {
     return this.auditService.getAvailableEntities();

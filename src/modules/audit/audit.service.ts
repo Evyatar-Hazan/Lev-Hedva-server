@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { 
-  CreateAuditLogDto, 
-  AuditLogResponseDto, 
+import {
+  CreateAuditLogDto,
+  AuditLogResponseDto,
   AuditLogsQueryDto,
   AuditActionType,
-  AuditEntityType 
+  AuditEntityType,
 } from './dto';
 import { Prisma } from '@prisma/client';
 
@@ -18,14 +18,28 @@ export class AuditService {
   /**
    * יצירת רשומת ביקורת חדשה
    */
-  async createAuditLog(createAuditLogDto: CreateAuditLogDto): Promise<AuditLogResponseDto> {
+  async createAuditLog(
+    createAuditLogDto: CreateAuditLogDto
+  ): Promise<AuditLogResponseDto> {
     try {
+      // Verify userId exists if provided
+      let validUserId = createAuditLogDto.userId;
+      if (validUserId) {
+        const userExists = await this.prisma.user.findUnique({
+          where: { id: validUserId },
+          select: { id: true },
+        });
+        if (!userExists) {
+          validUserId = null; // User doesn't exist, set to null instead of failing
+        }
+      }
+
       const auditLog = await this.prisma.auditLog.create({
         data: {
           action: createAuditLogDto.action,
           entityType: createAuditLogDto.entityType,
           entityId: createAuditLogDto.entityId,
-          userId: createAuditLogDto.userId,
+          userId: validUserId,
           ipAddress: createAuditLogDto.ipAddress,
           userAgent: createAuditLogDto.userAgent,
           description: createAuditLogDto.description,
@@ -65,7 +79,7 @@ export class AuditService {
     userId?: string,
     entityId?: string,
     metadata?: Record<string, any>,
-    request?: any,
+    request?: any
   ): Promise<void> {
     const auditLogData: CreateAuditLogDto = {
       action,
@@ -89,7 +103,7 @@ export class AuditService {
   async logSystemEvent(
     description: string,
     metadata?: Record<string, any>,
-    errorMessage?: string,
+    errorMessage?: string
   ): Promise<void> {
     const auditLogData: CreateAuditLogDto = {
       action: AuditActionType.SYSTEM_EVENT,
@@ -106,12 +120,15 @@ export class AuditService {
    * רישום אירוע אבטחה
    */
   async logSecurityEvent(
-    action: AuditActionType.LOGIN | AuditActionType.LOGOUT | AuditActionType.FAILED_LOGIN,
+    action:
+      | AuditActionType.LOGIN
+      | AuditActionType.LOGOUT
+      | AuditActionType.FAILED_LOGIN,
     description: string,
     userId?: string,
     ipAddress?: string,
     userAgent?: string,
-    metadata?: Record<string, any>,
+    metadata?: Record<string, any>
   ): Promise<void> {
     const auditLogData: CreateAuditLogDto = {
       action,
@@ -130,14 +147,17 @@ export class AuditService {
    * רישום שינוי נתונים
    */
   async logDataChange(
-    action: AuditActionType.CREATE | AuditActionType.UPDATE | AuditActionType.DELETE,
+    action:
+      | AuditActionType.CREATE
+      | AuditActionType.UPDATE
+      | AuditActionType.DELETE,
     entityType: AuditEntityType,
     entityId: string,
     description: string,
     userId: string,
     oldValue?: any,
     newValue?: any,
-    request?: any,
+    request?: any
   ): Promise<void> {
     const metadata = {
       oldValue: oldValue || undefined,
@@ -151,7 +171,7 @@ export class AuditService {
       userId,
       entityId,
       metadata,
-      request,
+      request
     );
   }
 
@@ -165,7 +185,7 @@ export class AuditService {
     endpoint?: string,
     httpMethod?: string,
     statusCode?: number,
-    metadata?: Record<string, any>,
+    metadata?: Record<string, any>
   ): Promise<void> {
     const auditLogData: CreateAuditLogDto = {
       action: AuditActionType.ERROR,
@@ -266,7 +286,7 @@ export class AuditService {
         { description: { contains: search, mode: 'insensitive' } },
         { errorMessage: { contains: search, mode: 'insensitive' } },
         { endpoint: { contains: search, mode: 'insensitive' } },
-        { 
+        {
           user: {
             OR: [
               { firstName: { contains: search, mode: 'insensitive' } },
@@ -310,7 +330,9 @@ export class AuditService {
       this.prisma.auditLog.count({ where }),
     ]);
 
-    const formattedLogs = auditLogs.map(log => this.formatAuditLogResponse(log));
+    const formattedLogs = auditLogs.map((log) =>
+      this.formatAuditLogResponse(log)
+    );
 
     return {
       data: formattedLogs,
@@ -349,7 +371,10 @@ export class AuditService {
   /**
    * קבלת סטטיסטיקות ביקורת
    */
-  async getAuditStatistics(startDate?: Date, endDate?: Date): Promise<{
+  async getAuditStatistics(
+    startDate?: Date,
+    endDate?: Date
+  ): Promise<{
     totalLogs: number;
     actionBreakdown: Record<string, number>;
     entityBreakdown: Record<string, number>;
@@ -376,10 +401,13 @@ export class AuditService {
       where: dateFilter,
     });
 
-    const actionBreakdown = actionStats.reduce((acc, stat) => {
-      acc[stat.action] = stat._count.id;
-      return acc;
-    }, {} as Record<string, number>);
+    const actionBreakdown = actionStats.reduce(
+      (acc, stat) => {
+        acc[stat.action] = stat._count.id;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
     // פילוח לפי ישויות
     const entityStats = await this.prisma.auditLog.groupBy({
@@ -388,10 +416,13 @@ export class AuditService {
       where: dateFilter,
     });
 
-    const entityBreakdown = entityStats.reduce((acc, stat) => {
-      acc[stat.entityType] = stat._count.id;
-      return acc;
-    }, {} as Record<string, number>);
+    const entityBreakdown = entityStats.reduce(
+      (acc, stat) => {
+        acc[stat.entityType] = stat._count.id;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
     // ספירת שגיאות
     const errorCount = await this.prisma.auditLog.count({
@@ -424,7 +455,7 @@ export class AuditService {
           userName: user ? `${user.firstName} ${user.lastName}` : 'לא ידוע',
           count: stat._count.id,
         };
-      }),
+      })
     );
 
     // פעילות אחרונה
@@ -444,7 +475,9 @@ export class AuditService {
       take: 10,
     });
 
-    const recentActivity = recentLogs.map(log => this.formatAuditLogResponse(log));
+    const recentActivity = recentLogs.map((log) =>
+      this.formatAuditLogResponse(log)
+    );
 
     return {
       totalLogs,
@@ -471,7 +504,7 @@ export class AuditService {
     });
 
     return {
-      actions: actions.map(item => item.action),
+      actions: actions.map((item) => item.action),
     };
   }
 
@@ -490,7 +523,7 @@ export class AuditService {
     });
 
     return {
-      entities: entities.map(item => item.entityType),
+      entities: entities.map((item) => item.entityType),
     };
   }
 
@@ -522,12 +555,14 @@ export class AuditService {
       action: auditLog.action,
       entityType: auditLog.entityType,
       entityId: auditLog.entityId,
-      user: auditLog.user ? {
-        id: auditLog.user.id,
-        firstName: auditLog.user.firstName,
-        lastName: auditLog.user.lastName,
-        email: auditLog.user.email,
-      } : undefined,
+      user: auditLog.user
+        ? {
+            id: auditLog.user.id,
+            firstName: auditLog.user.firstName,
+            lastName: auditLog.user.lastName,
+            email: auditLog.user.email,
+          }
+        : undefined,
       ipAddress: auditLog.ipAddress,
       userAgent: auditLog.userAgent,
       description: auditLog.description,
