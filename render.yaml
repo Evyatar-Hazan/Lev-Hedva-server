@@ -39,6 +39,8 @@ services:
       bash scripts/pre-migrate.sh
       # הרצת כל ה-migrations שטרם רצו (כולל data migrations)
       npx prisma migrate deploy
+      # הרצת seed לוודא שכל הנתונים הבסיסיים קיימים
+      npx prisma db seed || true
       # הפעלת השרת
       npm run start:prod
     healthCheckPath: /api/health
