@@ -1,6 +1,13 @@
-# Lev Hedva Backend API
+# Lev Hedva Backend API 🚀
 
 🏥 **מערכת ניהול ארגון לב חדוה** - Backend API מקיף הבנוי עם NestJS, TypeScript ו-PostgreSQL.
+
+## 📚 תיעוד
+
+התיעוד המפורט נמצא בתיקיית **[docs/](docs/INDEX.md)**:
+
+- **[תיעוד טכני](docs/INDEX.md)** - מבנה, API ומודולים
+- **[Swagger API](http://localhost:3001/api)** - תיעוד API אינטראקטיבי (בפיתוח)
 
 ## 🚀 תכונות עיקריות
 
