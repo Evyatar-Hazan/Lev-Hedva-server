@@ -15,7 +15,7 @@ import {
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionGuard } from '../auth/guards/permission.guard';
 import { RequirePermissions } from '../auth/decorators/permissions.decorator';
-import { PERMISSIONS } from '../../constants/permissions';
+import { PERMISSIONS } from '../auth/permissions.constants';
 import { AuditService } from './audit.service';
 import { AuditLogsQueryDto } from './dto/audit-logs-query.dto';
 import { AuditLogResponseDto } from './dto/audit-log-response.dto';
@@ -28,7 +28,7 @@ export class AuditController {
   constructor(private readonly auditService: AuditService) {}
 
   @Get()
-  @RequirePermissions(PERMISSIONS.AUDIT_READ)
+  @RequirePermissions(PERMISSIONS.ADMIN_AUDIT)
   @ApiOperation({
     summary: 'קבלת רשימת לוגי ביקורת',
     description: 'מחזיר רשימה מסוננת של לוגי ביקורת עם פיילטרים וסורטינג',
@@ -49,7 +49,7 @@ export class AuditController {
   }
 
   @Get('statistics')
-  @RequirePermissions(PERMISSIONS.AUDIT_READ)
+  @RequirePermissions(PERMISSIONS.ADMIN_AUDIT)
   @ApiOperation({
     summary: 'קבלת סטטיסטיקות ביקורת',
     description: 'מחזיר סטטיסטיקות על פעילויות המערכת',
@@ -108,7 +108,7 @@ export class AuditController {
   }
 
   @Get('actions')
-  @RequirePermissions(PERMISSIONS.AUDIT_READ)
+  @RequirePermissions(PERMISSIONS.ADMIN_AUDIT)
   @ApiOperation({
     summary: 'קבלת רשימת פעולות זמינות',
     description: 'מחזיר רשימה של כל הפעולות הקיימות במערכת לצורך פילטור',
@@ -131,7 +131,7 @@ export class AuditController {
   }
 
   @Get('entities')
-  @RequirePermissions(PERMISSIONS.AUDIT_READ)
+  @RequirePermissions(PERMISSIONS.ADMIN_AUDIT)
   @ApiOperation({
     summary: 'קבלת רשימת יישויות זמינות',
     description: 'מחזיר רשימה של כל היישויות הקיימות במערכת לצורך פילטור',
