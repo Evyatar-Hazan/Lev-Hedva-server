@@ -4,26 +4,28 @@ import { IsString, IsNotEmpty, IsOptional, MaxLength } from 'class-validator';
 export class ReturnLoanDto {
   @ApiProperty({
     example: 'cuid123456789',
-    description: 'ID של ההשאלה להחזרה',
+    description: 'Loan ID for return',
   })
-  @IsString({ message: 'מזהה ההשאלה חייב להיות מחרוזת' })
-  @IsNotEmpty({ message: 'מזהה ההשאלה הוא שדה חובה' })
+  @IsString({ message: 'Loan ID must be a string' })
+  @IsNotEmpty({ message: 'Loan ID is a required field' })
   loanId: string;
 
   @ApiPropertyOptional({
     example: 'good',
-    description: 'מצב הפריט בעת ההחזרה',
+    description: 'Item condition upon return',
   })
   @IsOptional()
-  @IsString({ message: 'מצב הפריט חייב להיות מחרוזת' })
+  @IsString({ message: 'Item condition must be a string' })
   returnCondition?: string;
 
   @ApiPropertyOptional({
-    example: 'הוחזר במצב טוב, ללא נזקים',
-    description: 'הערות על מצב הפריט בהחזרה',
+    example: 'Returned in good condition, no damage',
+    description: 'Notes about item condition upon return',
   })
   @IsOptional()
-  @IsString({ message: 'הערות החזרה חייבות להיות מחרוזת' })
-  @MaxLength(500, { message: 'הערות החזרה חייבות להכיל פחות מ-500 תווים' })
+  @IsString({ message: 'Return notes must be a string' })
+  @MaxLength(500, {
+    message: 'Return notes must contain less than 500 characters',
+  })
   returnNotes?: string;
 }

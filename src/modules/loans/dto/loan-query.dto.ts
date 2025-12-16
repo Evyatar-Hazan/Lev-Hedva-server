@@ -1,4 +1,13 @@
-import { IsOptional, IsString, IsEnum, IsDateString, IsBoolean, IsNumber, Min, Max } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsEnum,
+  IsDateString,
+  IsBoolean,
+  IsNumber,
+  Min,
+  Max,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { LoanStatus } from '@prisma/client';
@@ -39,12 +48,12 @@ export class LoansQueryDto {
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsDateString({}, { message: 'תאריך התחלה חייב להיות בפורמט תאריך תקין' })
+  @IsDateString({}, { message: 'Start date must be in a valid date format' })
   startDate?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsDateString({}, { message: 'תאריך סיום חייב להיות בפורמט תאריך תקין' })
+  @IsDateString({}, { message: 'End date must be in a valid date format' })
   endDate?: string;
 
   @ApiPropertyOptional()

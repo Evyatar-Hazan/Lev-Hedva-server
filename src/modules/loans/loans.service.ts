@@ -123,7 +123,7 @@ export class LoansService {
   }
 
   async findAllLoans(query: LoansQueryDto): Promise<LoansListResponseDto> {
-    // עדכון סטטוס השאלות באיחור לפני חיפוש
+    // Update status of overdue loans before search
     await this.updateOverdueLoans();
 
     const {
@@ -289,9 +289,9 @@ export class LoansService {
       throw new NotFoundException('השאלה לא נמצאה');
     }
 
-    // אפשר עדכון של כל סטטוס למנהלי מערכת
+    // Allow updating any status for system administrators
     // if (existingLoan.status !== LoanStatus.ACTIVE && existingLoan.status !== LoanStatus.OVERDUE) {
-    //   throw new BadRequestException('לא ניתן לעדכן השאלה שאינה פעילה');
+    //   throw new BadRequestException('לא ניתן לUpdate השאלה שאינה פעילה');
     // }
 
     try {
@@ -310,7 +310,7 @@ export class LoansService {
       if (status) {
         updateData.status = status;
 
-        // עדכון תאריך החזרה בפועל אם הסטטוס משתנה ל-RETURNED
+        // עדכון date החזרה בפועל אם הסטטוס משתנה ל-RETURNED
         if (
           status === LoanStatus.RETURNED &&
           existingLoan.status !== LoanStatus.RETURNED
@@ -318,7 +318,7 @@ export class LoansService {
           updateData.actualReturnDate = new Date();
         }
 
-        // מחיקת תאריך החזרה בפועל אם הסטטוס משתנה מ-RETURNED
+        // מחיקת date החזרה בפועל אם הסטטוס משתנה מ-RETURNED
         if (
           status !== LoanStatus.RETURNED &&
           existingLoan.status === LoanStatus.RETURNED
@@ -551,7 +551,7 @@ export class LoansService {
   }
 
   async getOverdueLoans(): Promise<LoanResponseDto[]> {
-    // עדכון סטטוס השאלות באיחור לפני חיפוש
+    // Update status of overdue loans before search
     await this.updateOverdueLoans();
 
     const overdueLoans = await this.prisma.loan.findMany({
@@ -583,7 +583,7 @@ export class LoansService {
   }
 
   async getActiveLoans(): Promise<LoanResponseDto[]> {
-    // עדכון סטטוס השאלות באיחור לפני חיפוש
+    // Update status of overdue loans before search
     await this.updateOverdueLoans();
 
     const activeLoans = await this.prisma.loan.findMany({
@@ -783,7 +783,7 @@ export class LoansService {
   private async updateOverdueLoans(): Promise<void> {
     const now = new Date();
 
-    // מציאת השאלות פעילות שחלף התאריך הצפוי להחזרה
+    // מציאת השאלות פעילות שחלף הdate הצפוי להחזרה
     const overdueLoansUpdate = await this.prisma.loan.updateMany({
       where: {
         status: LoanStatus.ACTIVE,

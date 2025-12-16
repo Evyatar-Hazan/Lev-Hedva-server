@@ -4,6 +4,7 @@ const typescriptParser = require('@typescript-eslint/parser');
 module.exports = [
   {
     files: ['**/*.ts'],
+    ignores: ['**/*.spec.ts', '**/*.test.ts'],
     languageOptions: {
       parser: typescriptParser,
       parserOptions: {
@@ -19,12 +20,27 @@ module.exports = [
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unused-vars': ['warn', { 
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_',
-        ignoreRestSiblings: true
-      }],
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+        },
+      ],
       'no-unused-vars': 'off',
+      // Note: English-only comments policy is enforced via:
+      // 1. Python script: python3 convert-hebrew-to-english.py
+      // 2. Pre-commit hook (optional, see docs/ENGLISH-COMMENTS-POLICY.md)
+      // 3. Code review process
+      'spaced-comment': [
+        'warn',
+        'always',
+        {
+          markers: ['/'],
+          exceptions: ['-', '+', '*'],
+        },
+      ],
     },
   },
   {

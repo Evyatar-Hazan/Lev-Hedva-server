@@ -11,32 +11,32 @@ import { LoanStatus } from '@prisma/client';
 export class UpdateLoanDto {
   @ApiPropertyOptional({
     example: '2024-01-20T00:00:00.000Z',
-    description: 'תאריך החזרה צפוי מעודכן',
+    description: 'Updated expected return date',
   })
   @IsOptional()
   @IsDateString(
     {},
-    { message: 'תאריך החזרה הצפוי חייב להיות בפורמט תאריך תקין' }
+    { message: 'Expected return date must be in a valid date format' }
   )
   expectedReturnDate?: string;
 
   @ApiPropertyOptional({
-    example: 'עדכון: הארכת השאלה לשבוע נוסף',
-    description: 'הערות מעודכנות על ההשאלה',
+    example: 'Update: Loan extended for another week',
+    description: 'Updated notes about the loan',
   })
   @IsOptional()
-  @IsString({ message: 'הערות חייבות להיות מחרוזת' })
-  @MaxLength(500, { message: 'הערות חייבות להכיל פחות מ-500 תווים' })
+  @IsString({ message: 'Notes must be a string' })
+  @MaxLength(500, { message: 'Notes must contain less than 500 characters' })
   notes?: string;
 
   @ApiPropertyOptional({
     example: 'ACTIVE',
-    description: 'סטטוס מעודכן של ההשאלה',
+    description: 'Updated loan status',
     enum: LoanStatus,
   })
   @IsOptional()
   @IsEnum(LoanStatus, {
-    message: 'סטטוס ההשאלה חייב להיות אחד מהערכים המותרים',
+    message: 'Loan status must be one of the allowed values',
   })
   status?: LoanStatus;
 }

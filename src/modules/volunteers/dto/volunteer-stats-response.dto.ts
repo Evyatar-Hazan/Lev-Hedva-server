@@ -9,7 +9,7 @@ export class VolunteerStatsResponseDto {
 
   @ApiProperty({
     description: 'Volunteer full name',
-    example: 'דוד כהן',
+    example: 'David Cohen',
   })
   volunteerName: string;
 
@@ -46,8 +46,8 @@ export class VolunteerStatsResponseDto {
   @ApiProperty({
     description: 'Activities grouped by type',
     example: {
-      'אירוע': { count: 10, hours: 35 },
-      'הכשרה': { count: 5, hours: 20 },
+      Event: { count: 10, hours: 35 },
+      Training: { count: 5, hours: 20 },
     },
   })
   activitiesByType: Record<string, { count: number; hours: number }>;

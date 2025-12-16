@@ -1,11 +1,19 @@
-import { IsOptional, IsString, IsEnum, IsUUID, IsDateString, IsInt, Min } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsEnum,
+  IsUUID,
+  IsDateString,
+  IsInt,
+  Min,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { AuditActionType, AuditEntityType } from './create-audit-log.dto';
 
 export class AuditLogsQueryDto {
   @ApiPropertyOptional({
-    description: 'מספר עמוד',
+    description: 'Page number',
     minimum: 1,
     default: 1,
   })
@@ -16,7 +24,7 @@ export class AuditLogsQueryDto {
   page?: number = 1;
 
   @ApiPropertyOptional({
-    description: 'מספר פריטים בעמוד',
+    description: 'Number of items per page',
     minimum: 1,
     maximum: 100,
     default: 10,
@@ -28,15 +36,15 @@ export class AuditLogsQueryDto {
   limit?: number = 10;
 
   @ApiPropertyOptional({
-    description: 'חיפוש טקסט חופשי',
-    example: 'משתמש',
+    description: 'Free text search',
+    example: 'user',
   })
   @IsOptional()
   @IsString()
   search?: string;
 
   @ApiPropertyOptional({
-    description: 'סינון לפי סוג פעולה',
+    description: 'Filter by action type',
     enum: AuditActionType,
   })
   @IsOptional()
@@ -44,7 +52,7 @@ export class AuditLogsQueryDto {
   action?: AuditActionType;
 
   @ApiPropertyOptional({
-    description: 'סינון לפי סוג ישות',
+    description: 'Filter by entity type',
     enum: AuditEntityType,
   })
   @IsOptional()
@@ -52,14 +60,14 @@ export class AuditLogsQueryDto {
   entityType?: AuditEntityType;
 
   @ApiPropertyOptional({
-    description: 'סינון לפי מזהה ישות',
+    description: 'Filter by entity ID',
   })
   @IsOptional()
   @IsString()
   entityId?: string;
 
   @ApiPropertyOptional({
-    description: 'סינון לפי מזהה משתמש',
+    description: 'Filter by user ID',
     format: 'uuid',
   })
   @IsOptional()
@@ -67,14 +75,14 @@ export class AuditLogsQueryDto {
   userId?: string;
 
   @ApiPropertyOptional({
-    description: 'סינון לפי כתובת IP',
+    description: 'Filter by IP address',
   })
   @IsOptional()
   @IsString()
   ipAddress?: string;
 
   @ApiPropertyOptional({
-    description: 'מתאריך',
+    description: 'From date',
     format: 'date',
     example: '2024-01-01',
   })
@@ -83,7 +91,7 @@ export class AuditLogsQueryDto {
   startDate?: string;
 
   @ApiPropertyOptional({
-    description: 'עד תאריך',
+    description: 'To date',
     format: 'date',
     example: '2024-12-31',
   })
@@ -92,7 +100,7 @@ export class AuditLogsQueryDto {
   endDate?: string;
 
   @ApiPropertyOptional({
-    description: 'שדה מיון',
+    description: 'Sort field',
     enum: ['createdAt', 'action', 'entityType', 'userId'],
     default: 'createdAt',
   })
@@ -101,7 +109,7 @@ export class AuditLogsQueryDto {
   sortBy?: 'createdAt' | 'action' | 'entityType' | 'userId' = 'createdAt';
 
   @ApiPropertyOptional({
-    description: 'כיוון מיון',
+    description: 'Sort order',
     enum: ['asc', 'desc'],
     default: 'desc',
   })
@@ -110,7 +118,7 @@ export class AuditLogsQueryDto {
   sortOrder?: 'asc' | 'desc' = 'desc';
 
   @ApiPropertyOptional({
-    description: 'סינון לפי קוד סטטוס HTTP',
+    description: 'Filter by HTTP status code',
     example: 200,
   })
   @IsOptional()
@@ -119,7 +127,7 @@ export class AuditLogsQueryDto {
   statusCode?: number;
 
   @ApiPropertyOptional({
-    description: 'חיפוש רק פעולות עם שגיאות',
+    description: 'Search only actions with errors',
     default: false,
   })
   @IsOptional()

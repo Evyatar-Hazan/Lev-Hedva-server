@@ -1,33 +1,45 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, MaxLength, IsOptional, MinLength } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  MaxLength,
+  IsOptional,
+  MinLength,
+} from 'class-validator';
 
 export class CreateProductDto {
   @ApiProperty({
-    example: 'כסא גלגלים חשמלי',
+    example: 'Electric wheelchair',
     description: 'Product name',
   })
-  @IsString({ message: 'שם המוצר חייב להיות מחרוזת' })
-  @IsNotEmpty({ message: 'שם המוצר הוא שדה חובה' })
-  @MinLength(2, { message: 'שם המוצר חייב להכיל לפחות 2 תווים' })
-  @MaxLength(100, { message: 'שם המוצר חייב להכיל פחות מ-100 תווים' })
+  @IsString({ message: 'Product name must be a string' })
+  @IsNotEmpty({ message: 'Product name is a required field' })
+  @MinLength(2, { message: 'Product name must contain at least 2 characters' })
+  @MaxLength(100, {
+    message: 'Product name must contain less than 100 characters',
+  })
   name: string;
 
   @ApiPropertyOptional({
-    example: 'כסא גלגלים חשמלי מתקדם עם בקרה אלקטרונית',
+    example: 'Advanced electric wheelchair with electronic control',
     description: 'Product description',
   })
   @IsOptional()
-  @IsString({ message: 'תיאור המוצר חייב להיות מחרוזת' })
-  @MaxLength(500, { message: 'תיאור המוצר חייב להכיל פחות מ-500 תווים' })
+  @IsString({ message: 'Product description must be a string' })
+  @MaxLength(500, {
+    message: 'Product description must contain less than 500 characters',
+  })
   description?: string;
 
   @ApiProperty({
-    example: 'כסאות גלגלים',
+    example: 'Wheelchairs',
     description: 'Product category',
   })
-  @IsString({ message: 'קטגוריית המוצר חייבת להיות מחרוזת' })
-  @IsNotEmpty({ message: 'קטגוריית המוצר היא שדה חובה' })
-  @MaxLength(50, { message: 'קטגוריית המוצר חייבת להכיל פחות מ-50 תווים' })
+  @IsString({ message: 'Product category must be a string' })
+  @IsNotEmpty({ message: 'Product category is a required field' })
+  @MaxLength(50, {
+    message: 'Product category must contain less than 50 characters',
+  })
   category: string;
 
   @ApiPropertyOptional({
@@ -35,8 +47,10 @@ export class CreateProductDto {
     description: 'Product manufacturer',
   })
   @IsOptional()
-  @IsString({ message: 'יצרן המוצר חייב להיות מחרוזת' })
-  @MaxLength(50, { message: 'שם היצרן חייב להכיל פחות מ-50 תווים' })
+  @IsString({ message: 'Product manufacturer must be a string' })
+  @MaxLength(50, {
+    message: 'Manufacturer name must contain less than 50 characters',
+  })
   manufacturer?: string;
 
   @ApiPropertyOptional({
@@ -44,7 +58,9 @@ export class CreateProductDto {
     description: 'Product model',
   })
   @IsOptional()
-  @IsString({ message: 'דגם המוצר חייב להיות מחרוזת' })
-  @MaxLength(50, { message: 'דגם המוצר חייב להכיל פחות מ-50 תווים' })
+  @IsString({ message: 'Product model must be a string' })
+  @MaxLength(50, {
+    message: 'Product model must contain less than 50 characters',
+  })
   model?: string;
 }

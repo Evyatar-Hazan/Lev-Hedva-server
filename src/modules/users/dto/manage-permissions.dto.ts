@@ -7,9 +7,9 @@ export class AssignPermissionsDto {
     example: ['users.read', 'users.write', 'products.read'],
     type: [String],
   })
-  @IsArray({ message: 'הרשאות חייבות להיות מערך' })
-  @ArrayNotEmpty({ message: 'חייב לציין לפחות הרשאה אחת' })
-  @IsString({ each: true, message: 'כל הרשאה חייבת להיות מחרוזת' })
+  @IsArray({ message: 'Permissions must be an array' })
+  @ArrayNotEmpty({ message: 'At least one permission must be specified' })
+  @IsString({ each: true, message: 'Each permission must be a string' })
   permissions: string[];
 }
 
@@ -19,8 +19,8 @@ export class RevokePermissionsDto {
     example: ['users.write', 'users.delete'],
     type: [String],
   })
-  @IsArray({ message: 'הרשאות חייבות להיות מערך' })
-  @ArrayNotEmpty({ message: 'חייב לציין לפחות הרשאה אחת' })
-  @IsString({ each: true, message: 'כל הרשאה חייבת להיות מחרוזת' })
+  @IsArray({ message: 'Permissions must be an array' })
+  @ArrayNotEmpty({ message: 'At least one permission must be specified' })
+  @IsString({ each: true, message: 'Each permission must be a string' })
   permissions: string[];
 }

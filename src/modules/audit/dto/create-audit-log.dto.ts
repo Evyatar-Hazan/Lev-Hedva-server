@@ -1,9 +1,16 @@
-import { IsString, IsEnum, IsObject, IsOptional, IsUUID, IsIP, IsUrl } from 'class-validator';
+import {
+  IsString,
+  IsEnum,
+  IsObject,
+  IsOptional,
+  IsUUID,
+  IsIP,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export enum AuditActionType {
   CREATE = 'CREATE',
-  UPDATE = 'UPDATE', 
+  UPDATE = 'UPDATE',
   DELETE = 'DELETE',
   READ = 'READ',
   LOGIN = 'LOGIN',
@@ -27,7 +34,7 @@ export enum AuditEntityType {
 
 export class CreateAuditLogDto {
   @ApiProperty({
-    description: 'סוג הפעולה שבוצעה',
+    description: 'Type of action performed',
     enum: AuditActionType,
     example: AuditActionType.CREATE,
   })
@@ -35,7 +42,7 @@ export class CreateAuditLogDto {
   action: AuditActionType;
 
   @ApiProperty({
-    description: 'סוג הישות על הפעולה בוצעה',
+    description: 'Type of entity the action was performed on',
     enum: AuditEntityType,
     example: AuditEntityType.USER,
   })
@@ -43,7 +50,7 @@ export class CreateAuditLogDto {
   entityType: AuditEntityType;
 
   @ApiPropertyOptional({
-    description: 'מזהה הישות שעליה בוצעה הפעולה',
+    description: 'Entity ID on which the action was performed',
     format: 'uuid',
     example: 'user-123',
   })
@@ -52,7 +59,7 @@ export class CreateAuditLogDto {
   entityId?: string;
 
   @ApiPropertyOptional({
-    description: 'מזהה המשתמש שביצע הפעולה',
+    description: 'ID of the user who performed the action',
     format: 'uuid',
   })
   @IsOptional()
@@ -60,7 +67,7 @@ export class CreateAuditLogDto {
   userId?: string;
 
   @ApiPropertyOptional({
-    description: 'כתובת IP ממנה בוצעה הפעולה',
+    description: 'IP address from which the action was performed',
     format: 'ipv4',
     example: '192.168.1.100',
   })
@@ -69,7 +76,7 @@ export class CreateAuditLogDto {
   ipAddress?: string;
 
   @ApiPropertyOptional({
-    description: 'User Agent של הדפדפן',
+    description: 'Browser User Agent',
     example: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
   })
   @IsOptional()
@@ -77,18 +84,18 @@ export class CreateAuditLogDto {
   userAgent?: string;
 
   @ApiProperty({
-    description: 'תיאור הפעולה שבוצעה',
-    example: 'משתמש חדש נוצר במערכת',
+    description: 'Description of the action performed',
+    example: 'New user created in the system',
   })
   @IsString()
   description: string;
 
   @ApiPropertyOptional({
-    description: 'נתונים נוספים בפורמט JSON',
+    description: 'Additional data in JSON format',
     example: {
-      oldValue: 'ערך ישן',
-      newValue: 'ערך חדש',
-      additionalInfo: 'מידע נוסף',
+      oldValue: 'old value',
+      newValue: 'new value',
+      additionalInfo: 'additional info',
     },
   })
   @IsOptional()
@@ -104,7 +111,7 @@ export class CreateAuditLogDto {
   endpoint?: string;
 
   @ApiPropertyOptional({
-    description: 'שיטת HTTP',
+    description: 'HTTP method',
     example: 'POST',
   })
   @IsOptional()
@@ -112,22 +119,22 @@ export class CreateAuditLogDto {
   httpMethod?: string;
 
   @ApiPropertyOptional({
-    description: 'קוד סטטוס HTTP',
+    description: 'HTTP status code',
     example: 201,
   })
   @IsOptional()
   statusCode?: number;
 
   @ApiPropertyOptional({
-    description: 'זמן ביצוע הפעולה במילישניות',
+    description: 'Action execution time in milliseconds',
     example: 150,
   })
   @IsOptional()
   executionTime?: number;
 
   @ApiPropertyOptional({
-    description: 'הודעת שגיאה (במקרה של שגיאה)',
-    example: 'משתמש לא נמצא',
+    description: 'Error message (in case of error)',
+    example: 'User not found',
   })
   @IsOptional()
   @IsString()

@@ -36,9 +36,9 @@ describe('AuditService', () => {
     service = module.get<AuditService>(AuditService);
     prismaService = module.get<PrismaService>(PrismaService);
 
-    // מנקה mocks לפני כל טסט
+    // Clean mocks before each test
     jest.clearAllMocks();
-    // מבטל console.error עבור טסטים
+    // Suppress console.error for tests
     jest.spyOn(console, 'error').mockImplementation();
   });
 

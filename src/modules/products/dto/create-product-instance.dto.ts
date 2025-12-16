@@ -1,22 +1,31 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, MaxLength, IsOptional, IsBoolean, IsIn } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  MaxLength,
+  IsOptional,
+  IsBoolean,
+  IsIn,
+} from 'class-validator';
 
 export class CreateProductInstanceDto {
   @ApiProperty({
     example: 'cuid123456789',
     description: 'Product ID that this instance belongs to',
   })
-  @IsString({ message: 'מזהה המוצר חייב להיות מחרוזת' })
-  @IsNotEmpty({ message: 'מזהה המוצר הוא שדה חובה' })
+  @IsString({ message: 'Product ID must be a string' })
+  @IsNotEmpty({ message: 'Product ID is a required field' })
   productId: string;
 
   @ApiProperty({
     example: 'WC001',
     description: 'Product barcode (unique identifier)',
   })
-  @IsString({ message: 'ברקוד המוצר חייב להיות מחרוזת' })
-  @IsNotEmpty({ message: 'ברקוד המוצר הוא שדה חובה' })
-  @MaxLength(50, { message: 'ברקוד המוצר חייב להכיל פחות מ-50 תווים' })
+  @IsString({ message: 'Product barcode must be a string' })
+  @IsNotEmpty({ message: 'Product barcode is a required field' })
+  @MaxLength(50, {
+    message: 'Product barcode must contain less than 50 characters',
+  })
   barcode: string;
 
   @ApiPropertyOptional({
@@ -24,8 +33,10 @@ export class CreateProductInstanceDto {
     description: 'Product serial number',
   })
   @IsOptional()
-  @IsString({ message: 'מספר סידורי חייב להיות מחרוזת' })
-  @MaxLength(50, { message: 'מספר סידורי חייב להכיל פחות מ-50 תווים' })
+  @IsString({ message: 'Serial number must be a string' })
+  @MaxLength(50, {
+    message: 'Serial number must contain less than 50 characters',
+  })
   serialNumber?: string;
 
   @ApiProperty({
@@ -33,28 +44,30 @@ export class CreateProductInstanceDto {
     description: 'Product condition',
     enum: ['excellent', 'good', 'fair', 'poor', 'needs-repair'],
   })
-  @IsString({ message: 'מצב המוצר חייב להיות מחרוזת' })
+  @IsString({ message: 'Product condition must be a string' })
   @IsIn(['excellent', 'good', 'fair', 'poor', 'needs-repair'], {
-    message: 'מצב המוצר חייב להיות אחד מהערכים המותרים'
+    message: 'Product condition must be one of the allowed values',
   })
   condition: string;
 
   @ApiPropertyOptional({
-    example: 'מחסן א׳ - קומה 2',
+    example: 'Warehouse A - Floor 2',
     description: 'Product location',
   })
   @IsOptional()
-  @IsString({ message: 'מיקום המוצר חייב להיות מחרוזת' })
-  @MaxLength(100, { message: 'מיקום המוצר חייב להכיל פחות מ-100 תווים' })
+  @IsString({ message: 'Product location must be a string' })
+  @MaxLength(100, {
+    message: 'Product location must contain less than 100 characters',
+  })
   location?: string;
 
   @ApiPropertyOptional({
-    example: 'הוחלפה בטריה חדשה, נבדק במעבדה',
+    example: 'Battery replaced, tested in lab',
     description: 'Additional notes about the product instance',
   })
   @IsOptional()
-  @IsString({ message: 'הערות חייבות להיות מחרוזת' })
-  @MaxLength(500, { message: 'הערות חייבות להכיל פחות מ-500 תווים' })
+  @IsString({ message: 'Notes must be a string' })
+  @MaxLength(500, { message: 'Notes must contain less than 500 characters' })
   notes?: string;
 
   @ApiPropertyOptional({
@@ -63,6 +76,6 @@ export class CreateProductInstanceDto {
     default: true,
   })
   @IsOptional()
-  @IsBoolean({ message: 'זמינות המוצר חייבת להיות true או false' })
+  @IsBoolean({ message: 'Product availability must be true or false' })
   isAvailable?: boolean;
 }

@@ -1,38 +1,38 @@
-# 📚 תיעוד Server - Lev-Hedva
+# 📚 Server Documentation - Lev-Hedva
 
-תיעוד עבור שרת NestJS (Backend).
+Documentation for NestJS Server (Backend).
 
-## 🏗️ מבנה הפרויקט
+## 🏗️ Project Structure
 
 ```
 Lev-Hedva-sever/
 ├── src/
-│   ├── modules/         # מודולים עיקריים
-│   │   ├── auth/       # אימות והרשאות
-│   │   ├── users/      # ניהול משתמשים
-│   │   ├── products/   # ניהול מוצרים
-│   │   ├── loans/      # ניהול השאלות
-│   │   ├── volunteers/ # ניהול מתנדבים
-│   │   └── audit/      # מעקב ולוגים
+│   ├── modules/         # Main modules
+│   │   ├── auth/       # Authentication and authorization
+│   │   ├── users/      # User management
+│   │   ├── products/   # Product management
+│   │   ├── loans/      # Loan management
+│   │   ├── volunteers/ # Volunteer management
+│   │   └── audit/      # Audit tracking and logs
 │   ├── common/         # Guards, Interceptors, DTOs
 │   ├── prisma/         # Prisma service
-│   └── main.ts         # נקודת כניסה
+│   └── main.ts         # Entry point
 ├── prisma/
-│   ├── schema.prisma   # סכמת בסיס הנתונים
+│   ├── schema.prisma   # Database schema
 │   ├── migrations/     # migrations
-│   └── seed.ts         # נתוני התחלה
-└── scripts/           # סקריפטים שימושיים
+│   └── seed.ts         # Seed data
+└── scripts/           # Utility scripts
 ```
 
-## 🛠️ טכנולוגיות
+## 🛠️ Technologies
 
 - **NestJS** - Node.js framework
-- **Prisma** - ORM לניהול בסיס נתונים
-- **PostgreSQL** - בסיס נתונים
-- **JWT** - אימות משתמשים
-- **Passport** - אסטרטגיות אימות
-- **TypeScript** - שפת פיתוח
-- **Jest** - מסגרת בדיקות
+- **Prisma** - ORM for database management
+- **PostgreSQL** - Database
+- **JWT** - User authentication
+- **Passport** - Authentication strategies
+- **TypeScript** - Development language
+- **Jest** - Testing framework
 
 ## 🚀 פקודות שימושיות
 
@@ -60,6 +60,7 @@ npm run reset-admin        # איפוס סיסמת admin
 ## 🗄️ בסיס נתונים
 
 ### מודלים עיקריים
+
 - **User** - משתמשים ומנהלים
 - **Volunteer** - מתנדבים
 - **Product** - מוצרים
@@ -68,6 +69,7 @@ npm run reset-admin        # איפוס סיסמת admin
 - **AuditLog** - לוג פעולות
 
 ### Migrations
+
 כל ה-migrations נמצאים ב-`prisma/migrations/`
 
 ## 🔐 אבטחה

@@ -1,5 +1,13 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsEnum, IsString, IsBoolean, IsNumber, Min, Max } from 'class-validator';
+import {
+  IsOptional,
+  IsEnum,
+  IsString,
+  IsBoolean,
+  IsNumber,
+  Min,
+  Max,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 import { UserRole } from '@prisma/client';
 
@@ -11,8 +19,8 @@ export class QueryUsersDto {
   })
   @IsOptional()
   @Transform(({ value }) => parseInt(value))
-  @IsNumber({}, { message: 'מספר העמוד חייב להיות מספר' })
-  @Min(1, { message: 'מספר העמוד חייב להיות לפחות 1' })
+  @IsNumber({}, { message: 'Page number must be a number' })
+  @Min(1, { message: 'Page number must be at least 1' })
   page?: number = 1;
 
   @ApiPropertyOptional({
@@ -23,16 +31,16 @@ export class QueryUsersDto {
   })
   @IsOptional()
   @Transform(({ value }) => parseInt(value))
-  @IsNumber({}, { message: 'מספר הפריטים בעמוד חייב להיות מספר' })
-  @Min(1, { message: 'מספר הפריטים בעמוד חייב להיות לפחות 1' })
-  @Max(100, { message: 'מספר הפריטים בעמוד חייב להיות לכל היותר 100' })
+  @IsNumber({}, { message: 'Items per page must be a number' })
+  @Min(1, { message: 'Items per page must be at least 1' })
+  @Max(100, { message: 'Items per page must be at most 100' })
   limit?: number = 10;
 
   @ApiPropertyOptional({
     description: 'Search term for name or email',
   })
   @IsOptional()
-  @IsString({ message: 'מונח החיפוש חייב להיות מחרוזת' })
+  @IsString({ message: 'Search term must be a string' })
   search?: string;
 
   @ApiPropertyOptional({
@@ -40,7 +48,7 @@ export class QueryUsersDto {
     enum: UserRole,
   })
   @IsOptional()
-  @IsEnum(UserRole, { message: 'תפקיד המשתמש לא תקין' })
+  @IsEnum(UserRole, { message: 'User role is invalid' })
   role?: UserRole;
 
   @ApiPropertyOptional({
@@ -48,7 +56,7 @@ export class QueryUsersDto {
   })
   @IsOptional()
   @Transform(({ value }) => value === 'true')
-  @IsBoolean({ message: 'סטטוס פעיל חייב להיות true או false' })
+  @IsBoolean({ message: 'Active status must be true or false' })
   isActive?: boolean;
 
   @ApiPropertyOptional({
@@ -57,7 +65,7 @@ export class QueryUsersDto {
     default: 'createdAt',
   })
   @IsOptional()
-  @IsString({ message: 'שדה המיון חייב להיות מחרוזת' })
+  @IsString({ message: 'Sort field must be a string' })
   sortBy?: string = 'createdAt';
 
   @ApiPropertyOptional({
@@ -66,6 +74,6 @@ export class QueryUsersDto {
     default: 'desc',
   })
   @IsOptional()
-  @IsString({ message: 'כיוון המיון חייב להיות מחרוזת' })
+  @IsString({ message: 'Sort order must be a string' })
   sortOrder?: 'asc' | 'desc' = 'desc';
 }

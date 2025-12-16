@@ -1,67 +1,78 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsNumber, Min, Max, IsDateString, MaxLength, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsNumber,
+  Min,
+  Max,
+  IsDateString,
+  MaxLength,
+  IsOptional,
+} from 'class-validator';
 
 export class CreateVolunteerActivityDto {
   @ApiProperty({
     example: 'cuid123456789',
-    description: 'ID של המתנדב',
+    description: 'Volunteer ID',
   })
-  @IsString({ message: 'מזהה המתנדב חייב להיות מחרוזת' })
-  @IsNotEmpty({ message: 'מזהה המתנדב הוא שדה חובה' })
+  @IsString({ message: 'Volunteer ID must be a string' })
+  @IsNotEmpty({ message: 'Volunteer ID is a required field' })
   volunteerId: string;
 
   @ApiProperty({
-    example: 'סיוע בחלוקת ציוד',
-    description: 'סוג הפעילות',
+    example: 'Equipment distribution assistance',
+    description: 'Activity type',
     enum: [
-      'סיוע בחלוקת ציוד',
-      'תחזוקה ותיקון',
-      'מנהל וארגון',
-      'הדרכה והכשרה',
-      'פעילות קהילתית',
-      'תמיכה טכנית',
-      'עזרה במשרד',
-      'פעילות מיוחדת',
-      'אחר'
+      'Equipment distribution assistance',
+      'Maintenance and repair',
+      'Management and organization',
+      'Training and instruction',
+      'Community activity',
+      'Technical support',
+      'Office help',
+      'Special activity',
+      'Other',
     ],
   })
-  @IsString({ message: 'סוג הפעילות חייב להיות מחרוזת' })
-  @IsNotEmpty({ message: 'סוג הפעילות הוא שדה חובה' })
+  @IsString({ message: 'Activity type must be a string' })
+  @IsNotEmpty({ message: 'Activity type is a required field' })
   activityType: string;
 
   @ApiProperty({
-    example: 'חלוקת כסאות גלגלים במרכז הרפואי',
-    description: 'תיאור הפעילות',
+    example: 'Wheelchair distribution at medical center',
+    description: 'Activity description',
   })
-  @IsString({ message: 'תיאור הפעילות חייב להיות מחרוזת' })
-  @IsNotEmpty({ message: 'תיאור הפעילות הוא שדה חובה' })
-  @MaxLength(500, { message: 'תיאור הפעילות חייב להכיל פחות מ-500 תווים' })
+  @IsString({ message: 'Activity description must be a string' })
+  @IsNotEmpty({ message: 'Activity description is a required field' })
+  @MaxLength(500, {
+    message: 'Activity description must contain less than 500 characters',
+  })
   description: string;
 
   @ApiProperty({
     example: 4.5,
-    description: 'מספר שעות הפעילות',
+    description: 'Number of activity hours',
     minimum: 0.1,
     maximum: 24,
   })
-  @IsNumber({}, { message: 'מספר השעות חייב להיות מספר' })
-  @Min(0.1, { message: 'מספר השעות חייב להיות לפחות 0.1' })
-  @Max(24, { message: 'מספר השעות חייב להיות פחות מ-24' })
+  @IsNumber({}, { message: 'Number of hours must be a number' })
+  @Min(0.1, { message: 'Number of hours must be at least 0.1' })
+  @Max(24, { message: 'Number of hours must be less than 24' })
   hours: number;
 
   @ApiProperty({
     example: '2024-01-15T09:00:00.000Z',
-    description: 'תאריך הפעילות',
+    description: 'Activity date',
   })
-  @IsDateString({}, { message: 'תאריך הפעילות חייב להיות בפורמט תאריך תקין' })
+  @IsDateString({}, { message: 'Activity date must be in a valid date format' })
   date: string;
 
   @ApiPropertyOptional({
-    example: 'פעילות מוצלחת, חולקו 5 כסאות גלגלים',
-    description: 'הערות נוספות על הפעילות',
+    example: 'Successful activity, distributed 5 wheelchairs',
+    description: 'Additional notes about the activity',
   })
   @IsOptional()
-  @IsString({ message: 'הערות חייבות להיות מחרוזת' })
-  @MaxLength(1000, { message: 'הערות חייבות להכיל פחות מ-1000 תווים' })
+  @IsString({ message: 'Notes must be a string' })
+  @MaxLength(1000, { message: 'Notes must contain less than 1000 characters' })
   notes?: string;
 }

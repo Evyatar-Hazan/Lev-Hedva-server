@@ -6,16 +6,16 @@ export class ChangePasswordDto {
     example: 'OldPassword123!',
     description: 'Current password',
   })
-  @IsString({ message: 'הסיסמה הנוכחית חייבת להיות מחרוזת' })
-  @IsNotEmpty({ message: 'הסיסמה הנוכחית היא שדה חובה' })
+  @IsString({ message: 'Current password must be a string' })
+  @IsNotEmpty({ message: 'Current password is a required field' })
   currentPassword: string;
 
   @ApiProperty({
     example: 'NewPassword123!',
     description: 'New password',
   })
-  @IsString({ message: 'הסיסמה החדשה חייבת להיות מחרוזת' })
-  @IsNotEmpty({ message: 'הסיסמה החדשה היא שדה חובה' })
-  @MinLength(8, { message: 'הסיסמה החדשה חייבת להכיל לפחות 8 תווים' })
+  @IsString({ message: 'New password must be a string' })
+  @IsNotEmpty({ message: 'New password is a required field' })
+  @MinLength(8, { message: 'New password must contain at least 8 characters' })
   newPassword: string;
 }

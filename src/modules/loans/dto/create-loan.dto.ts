@@ -1,37 +1,46 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsOptional, IsDateString, MaxLength } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsDateString,
+  MaxLength,
+} from 'class-validator';
 
 export class CreateLoanDto {
   @ApiProperty({
     example: 'cuid123456789',
-    description: 'ID של המשתמש המבקש השאלה',
+    description: 'User ID requesting the loan',
   })
-  @IsString({ message: 'מזהה המשתמש חייב להיות מחרוזת' })
-  @IsNotEmpty({ message: 'מזהה המשתמש הוא שדה חובה' })
+  @IsString({ message: 'User ID must be a string' })
+  @IsNotEmpty({ message: 'User ID is a required field' })
   userId: string;
 
   @ApiProperty({
     example: 'cuid987654321',
-    description: 'ID של פריט המוצר להשאלה',
+    description: 'Product instance ID for the loan',
   })
-  @IsString({ message: 'מזהה פריט המוצר חייב להיות מחרוזת' })
-  @IsNotEmpty({ message: 'מזהה פריט המוצר הוא שדה חובה' })
+  @IsString({ message: 'Product instance ID must be a string' })
+  @IsNotEmpty({ message: 'Product instance ID is a required field' })
   productInstanceId: string;
 
   @ApiPropertyOptional({
     example: '2024-01-15T00:00:00.000Z',
-    description: 'תאריך החזרה צפוי',
+    description: 'Expected return date',
   })
   @IsOptional()
-  @IsDateString({}, { message: 'תאריך החזרה הצפוי חייב להיות בפורמט תאריך תקין' })
+  @IsDateString(
+    {},
+    { message: 'Expected return date must be in a valid date format' }
+  )
   expectedReturnDate?: string;
 
   @ApiPropertyOptional({
-    example: 'השאלה לטיול משפחתי',
-    description: 'הערות נוספות על ההשאלה',
+    example: 'Loan for family trip',
+    description: 'Additional notes about the loan',
   })
   @IsOptional()
-  @IsString({ message: 'הערות חייבות להיות מחרוזת' })
-  @MaxLength(500, { message: 'הערות חייבות להכיל פחות מ-500 תווים' })
+  @IsString({ message: 'Notes must be a string' })
+  @MaxLength(500, { message: 'Notes must contain less than 500 characters' })
   notes?: string;
 }

@@ -212,22 +212,22 @@ export class AuditService {
     const skip = (page - 1) * limit;
     const where: Prisma.AuditLogWhereInput = {};
 
-    // סינון לפי פעולה
+    // Filter by action
     if (action) {
       where.action = action;
     }
 
-    // סינון לפי סוג ישות
+    // Filter by entity type
     if (entityType) {
       where.entityType = entityType;
     }
 
-    // סינון לפי מזהה ישות
+    // Filter by entity ID
     if (entityId) {
       where.entityId = entityId;
     }
 
-    // סינון לפי משתמש
+    // Filter by user
     if (userId) {
       where.userId = userId;
     }

@@ -92,9 +92,9 @@ describe('AuditInterceptor', () => {
     interceptor = module.get<AuditInterceptor>(AuditInterceptor);
     auditService = module.get<AuditService>(AuditService);
 
-    // מנקה mocks לפני כל טסט
+    // Clean mocks before each test
     jest.clearAllMocks();
-    // מבטל console.error עבור טסטים
+    // Suppress console.error for tests
     jest.spyOn(console, 'error').mockImplementation();
   });
 
@@ -115,7 +115,7 @@ describe('AuditInterceptor', () => {
         next: (data) => {
           expect(data).toEqual({ users: ['user1', 'user2'] });
           
-          // צריך לחכות קצת שהפונקציה האסינכרונית תסתיים
+          // Need to wait a bit for the async function to complete
           setTimeout(() => {
             expect(mockAuditService.logUserAction).toHaveBeenCalledWith(
               AuditActionType.READ,
@@ -221,7 +221,7 @@ describe('AuditInterceptor', () => {
               AuditActionType.READ,
               AuditEntityType.USER,
               'קריאת משתמש הצליח (200)',
-              undefined, // אין userId
+              undefined, // No userId
               undefined,
               expect.objectContaining({
                 requestBody: {},
@@ -305,7 +305,7 @@ describe('AuditInterceptor', () => {
               AuditEntityType.USER,
               'עדכון משתמש הצליח (200)',
               'user-123',
-              'clx1y2z3a4b5c6d7e8f9g0h1i', // Entity ID נחלץ מה-URL
+              'clx1y2z3a4b5c6d7e8f9g0h1i', // Entity ID extracted from URL
               expect.any(Object)
             );
             done();

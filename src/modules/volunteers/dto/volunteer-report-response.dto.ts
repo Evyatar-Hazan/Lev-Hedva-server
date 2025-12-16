@@ -9,7 +9,7 @@ export class VolunteerReportResponseDto {
 
   @ApiProperty({
     description: 'Report title',
-    example: 'דוח פעילות מתנדבים - סיכום',
+    example: 'Volunteer Activity Report - Summary',
   })
   title: string;
 
@@ -53,8 +53,8 @@ export class VolunteerReportResponseDto {
     example: [
       {
         id: 'activity-1',
-        volunteer: 'דוד כהן',
-        activityType: 'אירוע',
+        volunteer: 'David Cohen',
+        activityType: 'Event',
         hours: 4,
         date: '2024-01-15',
       },
@@ -66,9 +66,9 @@ export class VolunteerReportResponseDto {
     description: 'Report charts data',
     example: {
       byActivityType: {
-        'אירוע': 45,
-        'הכשרה': 30,
-        'ליווי': 25,
+        Event: 45,
+        Training: 30,
+        Escort: 25,
       },
       monthlyTrend: {
         '2024-01': 35,

@@ -1,4 +1,10 @@
-import { IsEnum, IsOptional, IsString, IsUUID, IsDateString } from 'class-validator';
+import {
+  IsEnum,
+  IsOptional,
+  IsString,
+  IsUUID,
+  IsDateString,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class VolunteerReportQueryDto {
@@ -38,7 +44,7 @@ export class VolunteerReportQueryDto {
 
   @ApiPropertyOptional({
     description: 'Filter by activity type',
-    example: 'אירוע',
+    example: 'Event',
   })
   @IsOptional()
   @IsString()

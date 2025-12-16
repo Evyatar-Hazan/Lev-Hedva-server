@@ -36,7 +36,7 @@ describe('AuditController', () => {
     controller = module.get<AuditController>(AuditController);
     auditService = module.get<AuditService>(AuditService);
 
-    // מנקה mocks לפני כל טסט
+    // Clean mocks before each test
     jest.clearAllMocks();
   });
 

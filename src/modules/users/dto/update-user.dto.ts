@@ -12,8 +12,8 @@ export class UpdateUserDto extends PartialType(
     maxLength: 50,
   })
   @IsOptional()
-  @IsString({ message: 'הסיסמה חייבת להיות מחרוזת' })
-  @MinLength(8, { message: 'הסיסמה חייבת להכיל לפחות 8 תווים' })
-  @MaxLength(50, { message: 'הסיסמה חייבת להכיל פחות מ-50 תווים' })
+  @IsString({ message: 'Password must be a string' })
+  @MinLength(8, { message: 'Password must contain at least 8 characters' })
+  @MaxLength(50, { message: 'Password must contain less than 50 characters' })
   password?: string;
 }

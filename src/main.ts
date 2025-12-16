@@ -14,7 +14,7 @@ async function bootstrap() {
   app.use(helmet());
   app.use(compression());
 
-  // CORS - תומך במספר origins לפיתוח ו-production
+  // CORS - supports multiple origins for development and production
   const allowedOrigins = configService
     .get('CORS_ORIGIN', 'http://localhost:3000')
     .split(',')

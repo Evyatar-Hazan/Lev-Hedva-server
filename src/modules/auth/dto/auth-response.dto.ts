@@ -28,7 +28,7 @@ export class RefreshTokenDto {
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
     description: 'Refresh token',
   })
-  @IsString({ message: 'Refresh token חייב להיות מחרוזת' })
-  @IsNotEmpty({ message: 'Refresh token הוא שדה חובה' })
+  @IsString({ message: 'Refresh token must be string' })
+  @IsNotEmpty({ message: 'Refresh token is a required field' })
   refreshToken: string;
 }

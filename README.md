@@ -12,6 +12,7 @@
 ## 🚀 תכונות עיקריות
 
 ### 🔐 אבטחה ואימות
+
 - **JWT Authentication** עם Refresh Tokens
 - **RBAC (Role-Based Access Control)** עם הרשאות מתקדמות
 - **Rate Limiting** למניעת התקפות
@@ -19,18 +20,21 @@
 - **Password Hashing** עם bcrypt
 
 ### 📊 ניהול נתונים
+
 - **ניהול משתמשים** - יצירה, עדכון, הפעלה/כיבוי
 - **ניהול מוצרים** - קטלוג מלא עם מעקב מלאי
 - **מערכת השאלות** - מחזור חיים מלא של השאלות
 - **מעקב מתנדבים** - רישום פעילויות וסטטיסטיקות
 
 ### 🔍 מעקב וביקורת
+
 - **Audit Logging** - רישום כל הפעולות במערכת
 - **Request/Response Interceptor** - מעקב אוטומטי אחר API calls
 - **Error Handling** מקיף עם לוגים מפורטים
 - **Health Checks** לניטור תקינות השירות
 
 ### 🌐 API מתקדם
+
 - **Swagger Documentation** אוטומטית
 - **Validation** מתקדם עם class-validator
 - **Pagination** ו-filtering במחזור API
@@ -38,7 +42,7 @@
 
 ## 📋 דרישות מערכת
 
-- **Node.js** 18+ 
+- **Node.js** 18+
 - **PostgreSQL** 15+
 - **Docker** (אופציונלי)
 - **Redis** (לcaching - אופציונלי)
@@ -46,23 +50,27 @@
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/Evyatar-Hazan/Lev-Hedva-server.git
 cd Lev-Hedva-server
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Set up environment variables:
+
 ```bash
 cp .env.example .env
 # Edit .env with your configuration
 ```
 
 4. Set up the database:
+
 ```bash
 npm run prisma:generate
 npm run prisma:migrate
@@ -70,6 +78,7 @@ npm run prisma:seed
 ```
 
 5. Start development server:
+
 ```bash
 npm run start:dev
 ```
@@ -103,36 +112,42 @@ src/
 ## API Modules
 
 ### Users Module
+
 - User management (CRUD)
 - Role assignment
 - Permission management
 - User search and filtering
 
 ### Products Module
+
 - Product catalog management
 - Product instance tracking
 - Barcode generation and scanning
 - Inventory management
 
 ### Loans Module
+
 - Equipment lending system
 - Return tracking
 - Overdue notifications
 - Loan history
 
 ### Volunteers Module
+
 - Volunteer activity tracking
 - Hours logging
 - Activity reports
 - Volunteer management
 
 ### Authentication Module
+
 - JWT token-based authentication
 - Refresh token mechanism
 - Role-based access control
 - Session management
 
 ### Audit Module
+
 - System-wide activity logging
 - Change tracking
 - User action history
@@ -145,6 +160,7 @@ Interactive API documentation is available at `/api/docs` when running in develo
 ## Database Schema
 
 The application uses the following main entities:
+
 - **Users**: System users with roles (Admin, Worker, Volunteer, Client)
 - **Products**: Equipment catalog
 - **ProductInstances**: Physical items with unique barcodes
@@ -189,12 +205,14 @@ REDIS_URL=redis://localhost:6379
 The application is configured for Google Cloud Run deployment:
 
 1. Build and push Docker image:
+
 ```bash
 docker build -t gcr.io/PROJECT_ID/lev-hedva-server .
 docker push gcr.io/PROJECT_ID/lev-hedva-server
 ```
 
 2. Deploy to Cloud Run:
+
 ```bash
 gcloud run deploy lev-hedva-server \
   --image gcr.io/PROJECT_ID/lev-hedva-server \
@@ -206,6 +224,7 @@ gcloud run deploy lev-hedva-server \
 ### CI/CD
 
 GitHub Actions workflows are configured for:
+
 - Automated testing on pull requests
 - Docker image building
 - Deployment to Google Cloud Run
@@ -231,6 +250,7 @@ The application includes comprehensive testing:
 - **Coverage**: Aim for 90%+ code coverage
 
 Run tests:
+
 ```bash
 npm run test           # Unit tests
 npm run test:e2e       # E2E tests
