@@ -191,10 +191,10 @@ async function main() {
   }
 
   // Create client user
-  console.log('👥 Creating client user...');
+  console.log('הוספת לקוח...');
   const clientPassword = await bcrypt.hash('Client123!', 12);
 
-  const _clientUser = await prisma.user.upsert({
+  const clientUser = await prisma.user.upsert({
     where: { email: 'client@example.com' },
     update: {},
     create: {
@@ -207,6 +207,27 @@ async function main() {
       isActive: true,
     },
   });
+
+  // Give client loan:read permission
+  const loanReadPermission = createdPermissions.find(
+    (p) => p.name === 'loan:read'
+  );
+  if (loanReadPermission) {
+    await prisma.userPermission.upsert({
+      where: {
+        userId_permissionId: {
+          userId: clientUser.id,
+          permissionId: loanReadPermission.id,
+        },
+      },
+      update: {},
+      create: {
+        userId: clientUser.id,
+        permissionId: loanReadPermission.id,
+        grantedBy: adminUser.id,
+      },
+    });
+  }
 
   // Create sample products
   console.log('📦 Creating sample products...');

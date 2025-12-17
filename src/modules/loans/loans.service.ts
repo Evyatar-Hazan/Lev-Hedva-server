@@ -122,7 +122,10 @@ export class LoansService {
     }
   }
 
-  async findAllLoans(query: LoansQueryDto): Promise<LoansListResponseDto> {
+  async findAllLoans(
+    query: LoansQueryDto,
+    user: any
+  ): Promise<LoansListResponseDto> {
     // Update status of overdue loans before search
     await this.updateOverdueLoans();
 
@@ -141,6 +144,12 @@ export class LoansService {
     } = query;
 
     const where: Prisma.LoanWhereInput = {};
+
+    // If user is a client, they can only see their own active loans
+    if (user.role === 'CLIENT') {
+      where.userId = user.userId;
+      where.status = LoanStatus.ACTIVE;
+    }
 
     // Text search
     if (search) {
@@ -167,13 +176,13 @@ export class LoansService {
       ];
     }
 
-    // Filter by user
-    if (userId) {
+    // Filter by user (only if not a client - clients already filtered above)
+    if (userId && user.role !== 'CLIENT') {
       where.userId = userId;
     }
 
-    // Filter by status
-    if (status) {
+    // Filter by status (only if not a client - clients can only see active)
+    if (status && user.role !== 'CLIENT') {
       where.status = status;
     }
 
@@ -246,7 +255,7 @@ export class LoansService {
     };
   }
 
-  async findLoanById(id: string): Promise<LoanResponseDto> {
+  async findLoanById(id: string, user: any): Promise<LoanResponseDto> {
     const loan = await this.prisma.loan.findUnique({
       where: { id },
       include: {
@@ -269,6 +278,11 @@ export class LoansService {
 
     if (!loan) {
       throw new NotFoundException('השאלה לא נמצאה');
+    }
+
+    // If user is a client, they can only see their own loans
+    if (user.role === 'CLIENT' && loan.userId !== user.userId) {
+      throw new NotFoundException('אין לך הרשאה לצפות בהשאלה זו');
     }
 
     return this.formatLoanResponse(loan);

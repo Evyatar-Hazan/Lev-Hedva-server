@@ -97,7 +97,10 @@ export const ROLE_PERMISSIONS = {
     PERMISSIONS.VOLUNTEER_READ,
     PERMISSIONS.VOLUNTEER_CREATE,
   ],
-  CLIENT: [PERMISSIONS.PRODUCT_READ, PERMISSIONS.LOAN_READ],
+  CLIENT: [
+    // Clients can only view their own active loans - no create, update, or delete
+    PERMISSIONS.LOAN_READ,
+  ],
 } as const;
 
 export type Permission = keyof typeof PERMISSIONS;

@@ -65,9 +65,10 @@ export class LoansController {
     type: LoansListResponseDto,
   })
   async findAllLoans(
-    @Query() query: LoansQueryDto
+    @Query() query: LoansQueryDto,
+    @GetUser() user: any
   ): Promise<LoansListResponseDto> {
-    return this.loansService.findAllLoans(query);
+    return this.loansService.findAllLoans(query, user);
   }
 
   @Get('stats')
@@ -145,8 +146,11 @@ export class LoansController {
     type: LoanResponseDto,
   })
   @ApiResponse({ status: 404, description: 'השאלה לא נמצאה' })
-  async findLoanById(@Param('id') id: string): Promise<LoanResponseDto> {
-    return this.loansService.findLoanById(id);
+  async findLoanById(
+    @Param('id') id: string,
+    @GetUser() user: any
+  ): Promise<LoanResponseDto> {
+    return this.loansService.findLoanById(id, user);
   }
 
   @Put(':id')

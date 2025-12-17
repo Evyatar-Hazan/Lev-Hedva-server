@@ -183,7 +183,7 @@ async function main() {
   console.log('👤 Creating sample client...');
   const clientPassword = await bcrypt.hash('Client123!', 12);
 
-  await prisma.user.upsert({
+  const client = await prisma.user.upsert({
     where: { email: 'client@example.com' },
     update: {},
     create: {
@@ -196,6 +196,29 @@ async function main() {
       isActive: true,
     },
   });
+
+  // Give client loan:read permission
+  const clientPermissions = ['loans.read'];
+  for (const permName of clientPermissions) {
+    const permission = await prisma.permission.findUnique({
+      where: { name: permName },
+    });
+    if (permission) {
+      await prisma.userPermission.upsert({
+        where: {
+          userId_permissionId: {
+            userId: client.id,
+            permissionId: permission.id,
+          },
+        },
+        update: {},
+        create: {
+          userId: client.id,
+          permissionId: permission.id,
+        },
+      });
+    }
+  }
 
   // Create sample products
   console.log('📦 Creating sample products...');
