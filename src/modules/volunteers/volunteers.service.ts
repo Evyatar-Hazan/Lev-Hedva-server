@@ -16,10 +16,6 @@ import {
   VolunteerReportResponseDto,
 } from './dto';
 import { Prisma, UserRole } from '@prisma/client';
-import {
-  AuditActionType,
-  AuditEntityType,
-} from '../audit/dto/create-audit-log.dto';
 
 @Injectable()
 export class VolunteersService {

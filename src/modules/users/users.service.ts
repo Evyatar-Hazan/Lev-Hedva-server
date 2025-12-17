@@ -8,7 +8,7 @@ import {
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
-import { UserRole, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import {
   CreateUserDto,
   UpdateUserDto,
@@ -223,15 +223,15 @@ export class UsersService {
         updaterId,
         updatedUser.id,
         {
-          oldValues: { 
-            email: existingUser.email, 
+          oldValues: {
+            email: existingUser.email,
             role: existingUser.role,
             firstName: existingUser.firstName,
             lastName: existingUser.lastName,
             isActive: existingUser.isActive,
           },
-          newValues: { 
-            email: updatedUser.email, 
+          newValues: {
+            email: updatedUser.email,
             role: updatedUser.role,
             firstName: updatedUser.firstName,
             lastName: updatedUser.lastName,
@@ -417,7 +417,7 @@ export class UsersService {
         userId,
         {
           action: 'assign_permissions',
-          assignedPermissions: assignments.map(a => 
+          assignedPermissions: assignments.map(a =>
             permissionRecords.find(p => p.id === a.permissionId)?.name
           ),
           permissionCount: assignments.length,
@@ -425,12 +425,12 @@ export class UsersService {
       );
     }
 
-    const newPermissions = assignments.map(a => 
+    const newPermissions = assignments.map(a =>
       permissionRecords.find(p => p.id === a.permissionId)?.name
     ).filter(Boolean);
 
     return {
-      message: assignments.length > 0 
+      message: assignments.length > 0
         ? `${assignments.length} הרשאות נוספו בהצלחה`
         : 'כל ההרשאות כבר קיימות',
       permissions: newPermissions,
@@ -478,7 +478,7 @@ export class UsersService {
     }
 
     return {
-      message: deletedCount.count > 0 
+      message: deletedCount.count > 0
         ? `${deletedCount.count} הרשאות הוסרו בהצלחה`
         : 'לא נמצאו הרשאות להסרה',
       permissions: permissionRecords.map(p => p.name),

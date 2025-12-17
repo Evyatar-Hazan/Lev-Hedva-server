@@ -3,8 +3,6 @@ import {
   Get,
   Query,
   UseGuards,
-  UseInterceptors,
-  Req,
 } from '@nestjs/common';
 import {
   ApiTags,
