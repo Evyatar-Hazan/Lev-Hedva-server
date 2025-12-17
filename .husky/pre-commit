@@ -3,15 +3,21 @@
 
 echo "🔍 Running pre-commit checks..."
 
-# Run tests on staged files
-echo "Running tests on changed files..."
-npm run test:pre-commit $(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|js)$' | xargs)
+# Get staged TypeScript files
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|js)$')
 
-# Check if tests passed
-if [ $? -ne 0 ]; then
-  echo "❌ Tests failed. Commit aborted."
-  echo "💡 Fix the failing tests or use 'git commit --no-verify' to bypass (not recommended)"
-  exit 1
+if [ -n "$STAGED_FILES" ]; then
+  echo "Running tests on changed files..."
+  echo "$STAGED_FILES" | xargs npm run test:pre-commit
+  
+  # Check if tests passed
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests failed. Commit aborted."
+    echo "💡 Fix the failing tests or use 'git commit --no-verify' to bypass (not recommended)"
+    exit 1
+  fi
+else
+  echo "No TypeScript files to test."
 fi
 
 # Run linting
