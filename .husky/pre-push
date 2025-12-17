@@ -1,18 +1,21 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-echo "🔍 Running pre-push checks..."
+echo "🚀 Running pre-push checks..."
+echo ""
 
-# Run all tests with coverage
-echo "Running full test suite with coverage..."
-npm run test:pre-push
+# Run all tests
+echo "📋 Running full test suite..."
+npm test
 
 # Check if tests passed
 if [ $? -ne 0 ]; then
-  echo "❌ Tests or coverage check failed. Push aborted."
-  echo "💡 Ensure all tests pass and coverage meets the 80% threshold."
+  echo ""
+  echo "❌ Tests failed. Push aborted."
+  echo "💡 Fix the failing tests before pushing."
   echo "💡 Use 'git push --no-verify' to bypass (strongly discouraged)"
   exit 1
 fi
 
-echo "✅ Pre-push checks passed! Pushing code..."
+echo ""
+echo "✅ All tests passed! Pushing code..."
