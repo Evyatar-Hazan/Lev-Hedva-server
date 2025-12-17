@@ -4,7 +4,7 @@ import { AuditService } from './audit.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionGuard } from '../auth/guards/permission.guard';
 import { AuditActionType, AuditEntityType } from './dto/create-audit-log.dto';
-import { PERMISSIONS } from '../../constants/permissions';
+import { PERMISSIONS } from '../auth/permissions.constants';
 
 describe('AuditController', () => {
   let controller: AuditController;
@@ -289,7 +289,7 @@ describe('AuditController', () => {
       expect(guards).toContain(PermissionGuard);
     });
 
-    it('endpoints צריכים להיות מוגנים עם SYSTEM_MANAGE permission', () => {
+    it('endpoints צריכים להיות מוגנים עם ADMIN_AUDIT permission', () => {
       const getAuditLogsPermissions = Reflect.getMetadata(
         'permissions',
         controller.getAuditLogs
@@ -307,10 +307,10 @@ describe('AuditController', () => {
         controller.getAvailableEntities
       );
 
-      expect(getAuditLogsPermissions).toContain(PERMISSIONS.SYSTEM_MANAGE);
-      expect(getAuditStatisticsPermissions).toContain(PERMISSIONS.SYSTEM_MANAGE);
-      expect(getAvailableActionsPermissions).toContain(PERMISSIONS.SYSTEM_MANAGE);
-      expect(getAvailableEntitiesPermissions).toContain(PERMISSIONS.SYSTEM_MANAGE);
+      expect(getAuditLogsPermissions).toContain(PERMISSIONS.ADMIN_AUDIT);
+      expect(getAuditStatisticsPermissions).toContain(PERMISSIONS.ADMIN_AUDIT);
+      expect(getAvailableActionsPermissions).toContain(PERMISSIONS.ADMIN_AUDIT);
+      expect(getAvailableEntitiesPermissions).toContain(PERMISSIONS.ADMIN_AUDIT);
     });
   });
 

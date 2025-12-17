@@ -86,11 +86,16 @@ describe('VolunteersService', () => {
       date: '2024-01-15',
     };
 
+    const mockUser = {
+      userId: 'user-1',
+      role: UserRole.ADMIN,
+    };
+
     it('should create a volunteer activity successfully', async () => {
       mockPrismaService.user.findFirst.mockResolvedValue(mockVolunteer);
       mockPrismaService.volunteerActivity.create.mockResolvedValue(mockActivity);
 
-      const result = await service.createActivity(createActivityDto);
+      const result = await service.createActivity(createActivityDto, mockUser);
 
       expect(mockPrismaService.user.findFirst).toHaveBeenCalledWith({
         where: {
@@ -135,7 +140,7 @@ describe('VolunteersService', () => {
     it('should throw NotFoundException when volunteer does not exist', async () => {
       mockPrismaService.user.findFirst.mockResolvedValue(null);
 
-      await expect(service.createActivity(createActivityDto)).rejects.toThrow(
+      await expect(service.createActivity(createActivityDto, mockUser)).rejects.toThrow(
         new NotFoundException('המתנדב לא נמצא או אינו פעיל'),
       );
     });
@@ -144,7 +149,7 @@ describe('VolunteersService', () => {
       const invalidDto = { ...createActivityDto, hours: 25 };
       mockPrismaService.user.findFirst.mockResolvedValue(mockVolunteer);
 
-      await expect(service.createActivity(invalidDto)).rejects.toThrow(
+      await expect(service.createActivity(invalidDto, mockUser)).rejects.toThrow(
         new BadRequestException('מספר השעות חייב להיות בין 1 ל-24'),
       );
     });
@@ -155,7 +160,7 @@ describe('VolunteersService', () => {
       const invalidDto = { ...createActivityDto, date: futureDate.toISOString() };
       mockPrismaService.user.findFirst.mockResolvedValue(mockVolunteer);
 
-      await expect(service.createActivity(invalidDto)).rejects.toThrow(
+      await expect(service.createActivity(invalidDto, mockUser)).rejects.toThrow(
         new BadRequestException('לא ניתן לרשום פעילות לתאריך עתידי'),
       );
     });
@@ -167,14 +172,19 @@ describe('VolunteersService', () => {
       limit: 10,
     };
 
+    const mockUser = {
+      userId: 'user-1',
+      role: UserRole.ADMIN,
+    };
+
     it('should return paginated activities', async () => {
       const activities = [mockActivity];
       const total = 1;
 
-      mockPrismaService.volunteerActivity.findMany.mockResolvedValue(activities);
-      mockPrismaService.volunteerActivity.count.mockResolvedValue(total);
+      mockPrismaService.volunteerActivity.findMany.mockResolvedValue([mockActivity]);
+      mockPrismaService.volunteerActivity.count.mockResolvedValue(1);
 
-      const result = await service.findAllActivities(queryDto);
+      const result = await service.findAllActivities(queryDto, mockUser);
 
       expect(result).toEqual({
         data: expect.arrayContaining([
@@ -196,7 +206,7 @@ describe('VolunteersService', () => {
       mockPrismaService.volunteerActivity.findMany.mockResolvedValue([mockActivity]);
       mockPrismaService.volunteerActivity.count.mockResolvedValue(1);
 
-      await service.findAllActivities(searchQuery);
+      await service.findAllActivities(searchQuery, mockUser);
 
       expect(mockPrismaService.volunteerActivity.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -212,10 +222,15 @@ describe('VolunteersService', () => {
   });
 
   describe('findActivityById', () => {
+    const mockUser = {
+      userId: 'user-1',
+      role: UserRole.ADMIN,
+    };
+
     it('should return activity by ID', async () => {
       mockPrismaService.volunteerActivity.findUnique.mockResolvedValue(mockActivity);
 
-      const result = await service.findActivityById('activity-1');
+      const result = await service.findActivityById('activity-1', mockUser);
 
       expect(mockPrismaService.volunteerActivity.findUnique).toHaveBeenCalledWith({
         where: { id: 'activity-1' },
@@ -237,7 +252,7 @@ describe('VolunteersService', () => {
     it('should throw NotFoundException when activity does not exist', async () => {
       mockPrismaService.volunteerActivity.findUnique.mockResolvedValue(null);
 
-      await expect(service.findActivityById('non-existent')).rejects.toThrow(
+      await expect(service.findActivityById('non-existent', mockUser)).rejects.toThrow(
         new NotFoundException('הפעילות לא נמצאה'),
       );
     });

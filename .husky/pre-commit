@@ -1,1 +1,28 @@
-npx --no-install lint-staged
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Running pre-commit checks..."
+
+# Run tests on staged files
+echo "Running tests on changed files..."
+npm run test:pre-commit $(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|js)$' | xargs)
+
+# Check if tests passed
+if [ $? -ne 0 ]; then
+  echo "❌ Tests failed. Commit aborted."
+  echo "💡 Fix the failing tests or use 'git commit --no-verify' to bypass (not recommended)"
+  exit 1
+fi
+
+# Run linting
+echo "Running ESLint..."
+npm run lint
+
+if [ $? -ne 0 ]; then
+  echo "❌ Linting failed. Commit aborted."
+  echo "💡 Fix lint errors or use 'git commit --no-verify' to bypass (not recommended)"
+  exit 1
+fi
+
+echo "✅ Pre-commit checks passed!"
+

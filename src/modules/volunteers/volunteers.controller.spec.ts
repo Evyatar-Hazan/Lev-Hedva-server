@@ -72,12 +72,17 @@ describe('VolunteersController', () => {
       date: '2024-01-15',
     };
 
+    const mockUser = {
+      userId: 'user-1',
+      role: 'ADMIN',
+    };
+
     it('should create a volunteer activity', async () => {
       mockVolunteersService.createActivity.mockResolvedValue(mockActivity);
 
-      const result = await controller.createActivity(createActivityDto);
+      const result = await controller.createActivity(createActivityDto, mockUser);
 
-      expect(mockVolunteersService.createActivity).toHaveBeenCalledWith(createActivityDto);
+      expect(mockVolunteersService.createActivity).toHaveBeenCalledWith(createActivityDto, mockUser);
       expect(result).toEqual(mockActivity);
     });
   });
@@ -86,6 +91,11 @@ describe('VolunteersController', () => {
     const queryDto = {
       page: 1,
       limit: 10,
+    };
+
+    const mockUser = {
+      userId: 'user-1',
+      role: 'ADMIN',
     };
 
     it('should return paginated activities', async () => {
@@ -99,20 +109,25 @@ describe('VolunteersController', () => {
 
       mockVolunteersService.findAllActivities.mockResolvedValue(expectedResult);
 
-      const result = await controller.findAllActivities(queryDto);
+      const result = await controller.findAllActivities(queryDto, mockUser);
 
-      expect(mockVolunteersService.findAllActivities).toHaveBeenCalledWith(queryDto);
+      expect(mockVolunteersService.findAllActivities).toHaveBeenCalledWith(queryDto, mockUser);
       expect(result).toEqual(expectedResult);
     });
   });
 
   describe('findActivity', () => {
+    const mockUser = {
+      userId: 'user-1',
+      role: 'ADMIN',
+    };
+
     it('should return activity by ID', async () => {
       mockVolunteersService.findActivityById.mockResolvedValue(mockActivity);
 
-      const result = await controller.findActivity('activity-1');
+      const result = await controller.findActivity('activity-1', mockUser);
 
-      expect(mockVolunteersService.findActivityById).toHaveBeenCalledWith('activity-1');
+      expect(mockVolunteersService.findActivityById).toHaveBeenCalledWith('activity-1', mockUser);
       expect(result).toEqual(mockActivity);
     });
   });

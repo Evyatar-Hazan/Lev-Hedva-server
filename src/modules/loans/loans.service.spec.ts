@@ -18,6 +18,7 @@ const mockPrisma = () => ({
     findMany: jest.fn(),
     findUnique: jest.fn(),
     update: jest.fn(),
+    updateMany: jest.fn(),
     count: jest.fn(),
     groupBy: jest.fn(),
   },
@@ -194,21 +195,34 @@ describe('LoansService', () => {
         },
       ];
 
+      prisma.loan.updateMany.mockResolvedValue({ count: 1 });
       prisma.loan.findMany.mockResolvedValue(overdueLoans);
 
       const result = await service.getOverdueLoans();
 
-      expect(prisma.loan.findMany).toHaveBeenCalledWith({
+      // First call updates loans to OVERDUE status
+      expect(prisma.loan.updateMany).toHaveBeenCalledWith({
         where: {
           status: LoanStatus.ACTIVE,
           expectedReturnDate: { lt: expect.any(Date) },
         },
-        include: expect.any(Object),
+        data: {
+          status: LoanStatus.OVERDUE,
+        },
+      });
+
+      // Then finds loans with OVERDUE status
+      expect(prisma.loan.findMany).toHaveBeenCalledWith({
+        where: {
+          status: LoanStatus.OVERDUE,
+        },
+        include: expect.objectContaining({
+          user: expect.any(Object),
+          productInstance: expect.any(Object),
+        }),
         orderBy: { expectedReturnDate: 'asc' },
       });
       expect(result).toHaveLength(1);
-      expect(result[0].isOverdue).toBe(true);
-      expect(result[0].daysOverdue).toBeGreaterThan(0);
     });
   });
 

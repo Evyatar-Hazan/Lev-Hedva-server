@@ -63,6 +63,8 @@ describe('AuditService', () => {
         createdAt: new Date(),
       };
 
+      // Mock user existence check
+      mockPrismaService.user.findUnique.mockResolvedValue({ id: 'user-123' });
       mockPrismaService.auditLog.create.mockResolvedValue(expectedResult);
 
       const result = await service.createAuditLog(auditData);
@@ -105,6 +107,7 @@ describe('AuditService', () => {
   describe('logUserAction', () => {
     it('צריך לרשום פעולת משתמש בהצלחה', async () => {
       const mockResult = { id: 'audit-123' };
+      mockPrismaService.user.findUnique.mockResolvedValue({ id: 'user-123' });
       mockPrismaService.auditLog.create.mockResolvedValue(mockResult);
 
       await service.logUserAction(
@@ -155,6 +158,7 @@ describe('AuditService', () => {
   describe('logSecurityEvent', () => {
     it('צריך לרשום אירוע אבטחה בהצלחה', async () => {
       const mockResult = { id: 'audit-123' };
+      mockPrismaService.user.findUnique.mockResolvedValue({ id: 'user-123' });
       mockPrismaService.auditLog.create.mockResolvedValue(mockResult);
 
       await service.logSecurityEvent(
@@ -182,6 +186,7 @@ describe('AuditService', () => {
   describe('logDataChange', () => {
     it('צריך לרשום שינוי נתונים בהצלחה', async () => {
       const mockResult = { id: 'audit-123' };
+      mockPrismaService.user.findUnique.mockResolvedValue({ id: 'user-123' });
       mockPrismaService.auditLog.create.mockResolvedValue(mockResult);
 
       const oldValues = { name: 'ישן' };
@@ -217,6 +222,7 @@ describe('AuditService', () => {
   describe('logError', () => {
     it('צריך לרשום שגיאה בהצלחה', async () => {
       const mockResult = { id: 'audit-123' };
+      mockPrismaService.user.findUnique.mockResolvedValue({ id: 'user-123' });
       mockPrismaService.auditLog.create.mockResolvedValue(mockResult);
 
       const error = new Error('שגיאת מערכת');
