@@ -10,7 +10,7 @@ if [ -n "$STAGED_FILES" ]; then
   echo "💅 Formatting code with Prettier..."
   npx prettier --write $STAGED_FILES
   git add $STAGED_FILES
-  
+
   echo "Running tests on changed files..."
   npm run test:pre-commit -- $STAGED_FILES
 
