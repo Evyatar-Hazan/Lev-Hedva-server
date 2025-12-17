@@ -168,14 +168,8 @@ async function main() {
     },
   });
 
-  // Assign volunteer permissions
-  const volunteerPermissions = [
-    'product:read',
-    'loan:read',
-    'volunteer:read',
-    'volunteer:create',
-    'volunteer:update',
-  ];
+  // Assign volunteer permissions - volunteers can only view their own activities and register for new ones
+  const volunteerPermissions = ['volunteer:read', 'volunteer:create'];
   for (const permName of volunteerPermissions) {
     const permission = createdPermissions.find((p) => p.name === permName);
     if (permission) {

@@ -28,6 +28,7 @@ import {
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionGuard } from '../auth/guards/permission.guard';
 import { RequirePermissions } from '../auth/decorators/permissions.decorator';
+import { GetUser } from '../auth/decorators/get-user.decorator';
 import { PERMISSIONS } from '../auth/permissions.constants';
 import { VolunteersService } from './volunteers.service';
 import {
@@ -68,9 +69,10 @@ export class VolunteersController {
     description: 'Insufficient permissions',
   })
   async createActivity(
-    @Body() createActivityDto: CreateVolunteerActivityDto
+    @Body() createActivityDto: CreateVolunteerActivityDto,
+    @GetUser() user: any
   ): Promise<VolunteerActivityResponseDto> {
-    return this.volunteersService.createActivity(createActivityDto);
+    return this.volunteersService.createActivity(createActivityDto, user);
   }
 
   @Get('activities')
@@ -144,8 +146,11 @@ export class VolunteersController {
   @ApiForbiddenResponse({
     description: 'Insufficient permissions',
   })
-  async findAllActivities(@Query() query: VolunteerActivitiesQueryDto) {
-    return this.volunteersService.findAllActivities(query);
+  async findAllActivities(
+    @Query() query: VolunteerActivitiesQueryDto,
+    @GetUser() user: any
+  ) {
+    return this.volunteersService.findAllActivities(query, user);
   }
 
   @Get('activities/:id')
@@ -175,9 +180,10 @@ export class VolunteersController {
     description: 'Insufficient permissions',
   })
   async findActivity(
-    @Param('id') id: string
+    @Param('id') id: string,
+    @GetUser() user: any
   ): Promise<VolunteerActivityResponseDto> {
-    return this.volunteersService.findActivityById(id);
+    return this.volunteersService.findActivityById(id, user);
   }
 
   @Put('activities/:id')

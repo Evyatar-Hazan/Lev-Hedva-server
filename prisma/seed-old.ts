@@ -156,13 +156,8 @@ async function main() {
     },
   });
 
-  // Give volunteer basic permissions
-  const volunteerPermissions = [
-    'products.read',
-    'volunteer:read',
-    'volunteer:create',
-    'volunteer:update',
-  ];
+  // Give volunteer basic permissions - volunteers can only view their own activities and register for new ones
+  const volunteerPermissions = ['volunteer:read', 'volunteer:create'];
   for (const permName of volunteerPermissions) {
     const permission = await prisma.permission.findUnique({
       where: { name: permName },

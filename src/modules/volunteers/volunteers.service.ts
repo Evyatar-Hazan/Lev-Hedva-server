@@ -1,7 +1,12 @@
-import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
-import { 
+import {
   CreateVolunteerActivityDto,
   UpdateVolunteerActivityDto,
   VolunteerActivityResponseDto,
@@ -11,17 +16,29 @@ import {
   VolunteerReportResponseDto,
 } from './dto';
 import { Prisma, UserRole } from '@prisma/client';
-import { AuditActionType, AuditEntityType } from '../audit/dto/create-audit-log.dto';
+import {
+  AuditActionType,
+  AuditEntityType,
+} from '../audit/dto/create-audit-log.dto';
 
 @Injectable()
 export class VolunteersService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly auditService: AuditService,
+    private readonly auditService: AuditService
   ) {}
 
-  async createActivity(createActivityDto: CreateVolunteerActivityDto): Promise<VolunteerActivityResponseDto> {
-    const { volunteerId, activityType, description, hours, date } = createActivityDto;
+  async createActivity(
+    createActivityDto: CreateVolunteerActivityDto,
+    user: any
+  ): Promise<VolunteerActivityResponseDto> {
+    const { volunteerId, activityType, description, hours, date } =
+      createActivityDto;
+
+    // If user is a volunteer, they can only create activities for themselves
+    if (user.role === UserRole.VOLUNTEER && user.userId !== volunteerId) {
+      throw new BadRequestException('מתנדב יכול לרשום רק התנדבויות עבור עצמו');
+    }
 
     // Verify volunteer exists and has the correct role
     const volunteer = await this.prisma.user.findFirst({
@@ -80,30 +97,36 @@ export class VolunteersService {
     }
   }
 
-  async findAllActivities(query: VolunteerActivitiesQueryDto): Promise<{
+  async findAllActivities(
+    query: VolunteerActivitiesQueryDto,
+    user: any
+  ): Promise<{
     data: VolunteerActivityResponseDto[];
     total: number;
     page: number;
     limit: number;
     totalPages: number;
   }> {
-    const { 
-      page = 1, 
-      limit = 10, 
-      search, 
-      volunteerId, 
-      activityType, 
-      startDate, 
-      endDate, 
-      sortBy = 'date', 
-      sortOrder = 'desc' 
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      volunteerId,
+      activityType,
+      startDate,
+      endDate,
+      sortBy = 'date',
+      sortOrder = 'desc',
     } = query;
 
     const skip = (page - 1) * limit;
     const where: Prisma.VolunteerActivityWhereInput = {};
 
-    // Volunteer filter
-    if (volunteerId) {
+    // If user is a volunteer, they can only see their own activities
+    if (user.role === UserRole.VOLUNTEER) {
+      where.volunteerId = user.userId;
+    } else if (volunteerId) {
+      // Admin/Worker can filter by volunteerId
       where.volunteerId = volunteerId;
     }
 
@@ -128,13 +151,15 @@ export class VolunteersService {
       where.OR = [
         { description: { contains: search, mode: 'insensitive' } },
         { activityType: { contains: search, mode: 'insensitive' } },
-        { volunteer: { 
-          OR: [
-            { firstName: { contains: search, mode: 'insensitive' } },
-            { lastName: { contains: search, mode: 'insensitive' } },
-            { email: { contains: search, mode: 'insensitive' } },
-          ]
-        }},
+        {
+          volunteer: {
+            OR: [
+              { firstName: { contains: search, mode: 'insensitive' } },
+              { lastName: { contains: search, mode: 'insensitive' } },
+              { email: { contains: search, mode: 'insensitive' } },
+            ],
+          },
+        },
       ];
     }
 
@@ -168,7 +193,9 @@ export class VolunteersService {
       this.prisma.volunteerActivity.count({ where }),
     ]);
 
-    const formattedActivities = activities.map(activity => this.formatActivityResponse(activity));
+    const formattedActivities = activities.map((activity) =>
+      this.formatActivityResponse(activity)
+    );
 
     return {
       data: formattedActivities,
@@ -179,7 +206,10 @@ export class VolunteersService {
     };
   }
 
-  async findActivityById(id: string): Promise<VolunteerActivityResponseDto> {
+  async findActivityById(
+    id: string,
+    user: any
+  ): Promise<VolunteerActivityResponseDto> {
     const activity = await this.prisma.volunteerActivity.findUnique({
       where: { id },
       include: {
@@ -198,10 +228,21 @@ export class VolunteersService {
       throw new NotFoundException('הפעילות לא נמצאה');
     }
 
+    // If user is a volunteer, they can only see their own activities
+    if (
+      user.role === UserRole.VOLUNTEER &&
+      activity.volunteerId !== user.userId
+    ) {
+      throw new BadRequestException('אין לך הרשאה לצפות בפעילות זו');
+    }
+
     return this.formatActivityResponse(activity);
   }
 
-  async updateActivity(id: string, updateActivityDto: UpdateVolunteerActivityDto): Promise<VolunteerActivityResponseDto> {
+  async updateActivity(
+    id: string,
+    updateActivityDto: UpdateVolunteerActivityDto
+  ): Promise<VolunteerActivityResponseDto> {
     const { activityType, description, hours, date } = updateActivityDto;
 
     // Check if activity exists
@@ -273,8 +314,8 @@ export class VolunteersService {
   }
 
   async getVolunteerStats(
-    volunteerId: string, 
-    startDate?: Date, 
+    volunteerId: string,
+    startDate?: Date,
     endDate?: Date
   ): Promise<VolunteerStatsResponseDto> {
     // Check if volunteer exists
@@ -331,14 +372,18 @@ export class VolunteersService {
     }
 
     // Calculate statistics
-    const totalHours = activities.reduce((sum, activity) => sum + activity.hours, 0);
+    const totalHours = activities.reduce(
+      (sum, activity) => sum + activity.hours,
+      0
+    );
     const averageHoursPerActivity = totalHours / activities.length;
     const firstActivityDate = activities[activities.length - 1]?.date;
     const lastActivityDate = activities[0]?.date;
 
     // Group by activity type
-    const activitiesByType: Record<string, { count: number; hours: number }> = {};
-    activities.forEach(activity => {
+    const activitiesByType: Record<string, { count: number; hours: number }> =
+      {};
+    activities.forEach((activity) => {
       if (!activitiesByType[activity.activityType]) {
         activitiesByType[activity.activityType] = { count: 0, hours: 0 };
       }
@@ -347,8 +392,9 @@ export class VolunteersService {
     });
 
     // Monthly breakdown
-    const monthlyBreakdown: Record<string, { count: number; hours: number }> = {};
-    activities.forEach(activity => {
+    const monthlyBreakdown: Record<string, { count: number; hours: number }> =
+      {};
+    activities.forEach((activity) => {
       const monthKey = activity.date.toISOString().substring(0, 7); // YYYY-MM
       if (!monthlyBreakdown[monthKey]) {
         monthlyBreakdown[monthKey] = { count: 0, hours: 0 };
@@ -359,7 +405,7 @@ export class VolunteersService {
 
     // Recent activities (last 5)
     const recentActivitiesData = activities.slice(0, 5);
-    const recentActivities = recentActivitiesData.map(activity => ({
+    const recentActivities = recentActivitiesData.map((activity) => ({
       id: activity.id,
       volunteerId: activity.volunteerId,
       activityType: activity.activityType,
@@ -383,7 +429,9 @@ export class VolunteersService {
     };
   }
 
-  async generateReports(query: VolunteerReportQueryDto): Promise<VolunteerReportResponseDto> {
+  async generateReports(
+    query: VolunteerReportQueryDto
+  ): Promise<VolunteerReportResponseDto> {
     const { type, startDate, endDate, volunteerId, activityType } = query;
 
     // Build date filter
@@ -425,15 +473,20 @@ export class VolunteersService {
 
     // Calculate summary statistics
     const totalActivities = activities.length;
-    const totalHours = activities.reduce((sum, activity) => sum + activity.hours, 0);
-    const uniqueVolunteers = new Set(activities.map(a => a.volunteerId)).size;
-    const averageHoursPerVolunteer = uniqueVolunteers > 0 ? totalHours / uniqueVolunteers : 0;
+    const totalHours = activities.reduce(
+      (sum, activity) => sum + activity.hours,
+      0
+    );
+    const uniqueVolunteers = new Set(activities.map((a) => a.volunteerId)).size;
+    const averageHoursPerVolunteer =
+      uniqueVolunteers > 0 ? totalHours / uniqueVolunteers : 0;
 
     const summary = {
       totalVolunteers: uniqueVolunteers,
       totalActivities,
       totalHours: Math.round(totalHours * 100) / 100,
-      averageHoursPerVolunteer: Math.round(averageHoursPerVolunteer * 100) / 100,
+      averageHoursPerVolunteer:
+        Math.round(averageHoursPerVolunteer * 100) / 100,
     };
 
     // Generate report data based on type
@@ -473,7 +526,7 @@ export class VolunteersService {
         break;
 
       case 'detailed':
-        data = activities.map(activity => ({
+        data = activities.map((activity) => ({
           id: activity.id,
           volunteer: `${activity.volunteer.firstName} ${activity.volunteer.lastName}`,
           activityType: activity.activityType,
@@ -507,7 +560,8 @@ export class VolunteersService {
           totalActivities: group.count,
           totalHours: Math.round(group.totalHours * 100) / 100,
           uniqueVolunteers: group.volunteers.size,
-          averageHours: Math.round((group.totalHours / group.count) * 100) / 100,
+          averageHours:
+            Math.round((group.totalHours / group.count) * 100) / 100,
         }));
 
         // Chart data
@@ -542,7 +596,8 @@ export class VolunteersService {
             totalActivities: group.count,
             totalHours: Math.round(group.totalHours * 100) / 100,
             uniqueVolunteers: group.volunteers.size,
-            averageHours: Math.round((group.totalHours / group.count) * 100) / 100,
+            averageHours:
+              Math.round((group.totalHours / group.count) * 100) / 100,
           }))
           .sort((a: any, b: any) => a.month.localeCompare(b.month));
 
@@ -586,7 +641,7 @@ export class VolunteersService {
       orderBy: { activityType: 'asc' },
     });
 
-    return activities.map(activity => activity.activityType);
+    return activities.map((activity) => activity.activityType);
   }
 
   private formatActivityResponse(activity: any): VolunteerActivityResponseDto {
