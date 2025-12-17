@@ -18,20 +18,24 @@ import {
   AssignPermissionsDto,
   RevokePermissionsDto,
 } from './dto';
-import { AuditActionType, AuditEntityType } from '../audit/dto/create-audit-log.dto';
+import {
+  AuditActionType,
+  AuditEntityType,
+} from '../audit/dto/create-audit-log.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     private prisma: PrismaService,
-    private auditService: AuditService,
+    private auditService: AuditService
   ) {}
 
   async create(
     createUserDto: CreateUserDto,
-    creatorId: string,
+    creatorId: string
   ): Promise<UserResponseDto> {
-    const { email, password, firstName, lastName, phone, role, isActive } = createUserDto;
+    const { email, password, firstName, lastName, phone, role, isActive } =
+      createUserDto;
 
     // Check if user already exists
     const existingUser = await this.prisma.user.findUnique({
@@ -79,7 +83,7 @@ export class UsersService {
           firstName: user.firstName,
           lastName: user.lastName,
           isActive: user.isActive,
-        },
+        }
       );
 
       return this.mapToUserResponse(user);
@@ -144,7 +148,7 @@ export class UsersService {
     const totalPages = Math.ceil(total / limit);
 
     return {
-      users: users.map(user => this.mapToUserResponse(user)),
+      users: users.map((user) => this.mapToUserResponse(user)),
       total,
       page,
       limit,
@@ -174,7 +178,7 @@ export class UsersService {
   async update(
     id: string,
     updateUserDto: UpdateUserDto,
-    updaterId: string,
+    updaterId: string
   ): Promise<UserResponseDto> {
     const existingUser = await this.prisma.user.findUnique({
       where: { id },
@@ -238,7 +242,7 @@ export class UsersService {
             isActive: updatedUser.isActive,
           },
           changes: Object.keys(updateUserDto),
-        },
+        }
       );
 
       return this.mapToUserResponse(updatedUser);
@@ -280,7 +284,7 @@ export class UsersService {
             firstName: user.firstName,
             lastName: user.lastName,
           },
-        },
+        }
       );
 
       return { message: 'המשתמש נמחק בהצלחה' };
@@ -289,7 +293,10 @@ export class UsersService {
     }
   }
 
-  async deactivateUser(id: string, deactivatorId: string): Promise<UserResponseDto> {
+  async deactivateUser(
+    id: string,
+    deactivatorId: string
+  ): Promise<UserResponseDto> {
     const user = await this.findOne(id);
 
     if (id === deactivatorId) {
@@ -320,13 +327,16 @@ export class UsersService {
         email: user.email,
         previousStatus: true,
         newStatus: false,
-      },
+      }
     );
 
     return this.mapToUserResponse(updatedUser);
   }
 
-  async activateUser(id: string, activatorId: string): Promise<UserResponseDto> {
+  async activateUser(
+    id: string,
+    activatorId: string
+  ): Promise<UserResponseDto> {
     const user = await this.findOne(id);
 
     const updatedUser = await this.prisma.user.update({
@@ -353,7 +363,7 @@ export class UsersService {
         email: user.email,
         previousStatus: false,
         newStatus: true,
-      },
+      }
     );
 
     return this.mapToUserResponse(updatedUser);
@@ -362,7 +372,7 @@ export class UsersService {
   async assignPermissions(
     userId: string,
     assignPermissionsDto: AssignPermissionsDto,
-    assignerId: string,
+    assignerId: string
   ): Promise<{ message: string; permissions: string[] }> {
     const user = await this.findOne(userId);
     const { permissions } = assignPermissionsDto;
@@ -374,11 +384,15 @@ export class UsersService {
       },
     });
 
-    const foundPermissionNames = permissionRecords.map(p => p.name);
-    const notFoundPermissions = permissions.filter(p => !foundPermissionNames.includes(p));
+    const foundPermissionNames = permissionRecords.map((p) => p.name);
+    const notFoundPermissions = permissions.filter(
+      (p) => !foundPermissionNames.includes(p)
+    );
 
     if (notFoundPermissions.length > 0) {
-      throw new BadRequestException(`הרשאות לא נמצאו: ${notFoundPermissions.join(', ')}`);
+      throw new BadRequestException(
+        `הרשאות לא נמצאו: ${notFoundPermissions.join(', ')}`
+      );
     }
 
     // Assign permissions
@@ -417,22 +431,23 @@ export class UsersService {
         userId,
         {
           action: 'assign_permissions',
-          assignedPermissions: assignments.map(a =>
-            permissionRecords.find(p => p.id === a.permissionId)?.name
+          assignedPermissions: assignments.map(
+            (a) => permissionRecords.find((p) => p.id === a.permissionId)?.name
           ),
           permissionCount: assignments.length,
-        },
+        }
       );
     }
 
-    const newPermissions = assignments.map(a =>
-      permissionRecords.find(p => p.id === a.permissionId)?.name
-    ).filter(Boolean);
+    const newPermissions = assignments
+      .map((a) => permissionRecords.find((p) => p.id === a.permissionId)?.name)
+      .filter(Boolean);
 
     return {
-      message: assignments.length > 0
-        ? `${assignments.length} הרשאות נוספו בהצלחה`
-        : 'כל ההרשאות כבר קיימות',
+      message:
+        assignments.length > 0
+          ? `${assignments.length} הרשאות נוספו בהצלחה`
+          : 'כל ההרשאות כבר קיימות',
       permissions: newPermissions,
     };
   }
@@ -440,7 +455,7 @@ export class UsersService {
   async revokePermissions(
     userId: string,
     revokePermissionsDto: RevokePermissionsDto,
-    revokerId: string,
+    revokerId: string
   ): Promise<{ message: string; permissions: string[] }> {
     const user = await this.findOne(userId);
     const { permissions } = revokePermissionsDto;
@@ -456,7 +471,7 @@ export class UsersService {
       where: {
         userId,
         permissionId: {
-          in: permissionRecords.map(p => p.id),
+          in: permissionRecords.map((p) => p.id),
         },
       },
     });
@@ -471,17 +486,18 @@ export class UsersService {
         userId,
         {
           action: 'revoke_permissions',
-          revokedPermissions: permissionRecords.map(p => p.name),
+          revokedPermissions: permissionRecords.map((p) => p.name),
           permissionCount: deletedCount.count,
-        },
+        }
       );
     }
 
     return {
-      message: deletedCount.count > 0
-        ? `${deletedCount.count} הרשאות הוסרו בהצלחה`
-        : 'לא נמצאו הרשאות להסרה',
-      permissions: permissionRecords.map(p => p.name),
+      message:
+        deletedCount.count > 0
+          ? `${deletedCount.count} הרשאות הוסרו בהצלחה`
+          : 'לא נמצאו הרשאות להסרה',
+      permissions: permissionRecords.map((p) => p.name),
     };
   }
 
@@ -491,7 +507,7 @@ export class UsersService {
       include: { permission: true },
     });
 
-    return userPermissions.map(up => up.permission.name);
+    return userPermissions.map((up) => up.permission.name);
   }
 
   private mapToUserResponse(user: any): UserResponseDto {
@@ -506,7 +522,7 @@ export class UsersService {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       lastLogin: user.lastLogin,
-      permissions: user.userPermissions?.map(up => up.permission.name) || [],
+      permissions: user.userPermissions?.map((up) => up.permission.name) || [],
     };
   }
 }

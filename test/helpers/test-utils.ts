@@ -147,7 +147,7 @@ export async function createTestApp(
   moduleFixture: TestingModule
 ): Promise<INestApplication> {
   const app = moduleFixture.createNestApplication();
-  
+
   // Apply global pipes (same as main.ts)
   app.useGlobalPipes(
     new ValidationPipe({
@@ -170,14 +170,14 @@ export async function waitFor(
   interval: number = 100
 ): Promise<void> {
   const startTime = Date.now();
-  
+
   while (Date.now() - startTime < timeout) {
     if (await condition()) {
       return;
     }
     await new Promise((resolve) => setTimeout(resolve, interval));
   }
-  
+
   throw new Error(`Timeout waiting for condition after ${timeout}ms`);
 }
 

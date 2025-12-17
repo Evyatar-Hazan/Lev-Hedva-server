@@ -2,7 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { LoansService } from './loans.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
-import { NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { LoanStatus } from '@prisma/client';
 
 const mockPrisma = () => ({
@@ -45,8 +49,12 @@ describe('LoansService', () => {
     }).compile();
 
     service = module.get<LoansService>(LoansService);
-    prisma = module.get(PrismaService) as unknown as ReturnType<typeof mockPrisma>;
-    auditService = module.get(AuditService) as unknown as ReturnType<typeof mockAuditService>;
+    prisma = module.get(PrismaService) as unknown as ReturnType<
+      typeof mockPrisma
+    >;
+    auditService = module.get(AuditService) as unknown as ReturnType<
+      typeof mockAuditService
+    >;
   });
 
   afterEach(() => {
@@ -133,12 +141,20 @@ describe('LoansService', () => {
     });
 
     it('returns loan successfully', async () => {
-      const dto = { loanId: 'l1', returnNotes: 'Returned in good condition' } as any;
+      const dto = {
+        loanId: 'l1',
+        returnNotes: 'Returned in good condition',
+      } as any;
       const updatedLoan = {
         ...mockLoan,
         status: LoanStatus.RETURNED,
         actualReturnDate: new Date(),
-        user: { id: 'u1', firstName: 'John', lastName: 'Doe', email: 'john@test.com' },
+        user: {
+          id: 'u1',
+          firstName: 'John',
+          lastName: 'Doe',
+          email: 'john@test.com',
+        },
         productInstance: { id: 'pi1', product: { id: 'p1' } },
       };
 
@@ -176,7 +192,9 @@ describe('LoansService', () => {
       });
       const dto = { loanId: 'l1' } as any;
 
-      await expect(service.returnLoan(dto)).rejects.toThrow(BadRequestException);
+      await expect(service.returnLoan(dto)).rejects.toThrow(
+        BadRequestException
+      );
     });
   });
 
@@ -187,7 +205,12 @@ describe('LoansService', () => {
           id: 'l1',
           status: LoanStatus.ACTIVE,
           expectedReturnDate: new Date(Date.now() - 86400000), // 1 day ago
-          user: { id: 'u1', firstName: 'John', lastName: 'Doe', email: 'john@test.com' },
+          user: {
+            id: 'u1',
+            firstName: 'John',
+            lastName: 'Doe',
+            email: 'john@test.com',
+          },
           productInstance: { id: 'pi1', product: { id: 'p1' } },
           loanDate: new Date(),
           createdAt: new Date(),
@@ -238,7 +261,12 @@ describe('LoansService', () => {
       const updatedLoan = {
         ...mockLoan,
         status: LoanStatus.LOST,
-        user: { id: 'u1', firstName: 'John', lastName: 'Doe', email: 'john@test.com' },
+        user: {
+          id: 'u1',
+          firstName: 'John',
+          lastName: 'Doe',
+          email: 'john@test.com',
+        },
         productInstance: { id: 'pi1', product: { id: 'p1' } },
       };
 
@@ -268,7 +296,9 @@ describe('LoansService', () => {
         status: LoanStatus.RETURNED,
       });
 
-      await expect(service.markLoanAsLost('l1')).rejects.toThrow(BadRequestException);
+      await expect(service.markLoanAsLost('l1')).rejects.toThrow(
+        BadRequestException
+      );
     });
   });
 });

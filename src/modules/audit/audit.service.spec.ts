@@ -80,15 +80,17 @@ describe('AuditService', () => {
         }),
         include: expect.any(Object),
       });
-      expect(result).toEqual(expect.objectContaining({
-        id: expectedResult.id,
-        action: expectedResult.action,
-        entityType: expectedResult.entityType,
-        entityId: expectedResult.entityId,
-        description: expectedResult.description,
-        ipAddress: expectedResult.ipAddress,
-        createdAt: expect.any(Date),
-      }));
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: expectedResult.id,
+          action: expectedResult.action,
+          entityType: expectedResult.entityType,
+          entityId: expectedResult.entityId,
+          description: expectedResult.description,
+          ipAddress: expectedResult.ipAddress,
+          createdAt: expect.any(Date),
+        })
+      );
     });
 
     it('צריך לטפל בשגיאה בעת יצירת רשומת ביקורת', async () => {
@@ -98,9 +100,13 @@ describe('AuditService', () => {
         description: 'התחברות משתמש',
       };
 
-      mockPrismaService.auditLog.create.mockRejectedValue(new Error('Database error'));
+      mockPrismaService.auditLog.create.mockRejectedValue(
+        new Error('Database error')
+      );
 
-      await expect(service.createAuditLog(auditData)).rejects.toThrow('Database error');
+      await expect(service.createAuditLog(auditData)).rejects.toThrow(
+        'Database error'
+      );
     });
   });
 
@@ -138,10 +144,7 @@ describe('AuditService', () => {
       const mockResult = { id: 'audit-123' };
       mockPrismaService.auditLog.create.mockResolvedValue(mockResult);
 
-      await service.logSystemEvent(
-        'גיבוי נתונים',
-        { size: '1GB' }
-      );
+      await service.logSystemEvent('גיבוי נתונים', { size: '1GB' });
 
       expect(mockPrismaService.auditLog.create).toHaveBeenCalledWith({
         data: expect.objectContaining({

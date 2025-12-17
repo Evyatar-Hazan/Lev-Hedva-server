@@ -75,9 +75,9 @@ describe('UsersService', () => {
       const existingUser = UserFactory.create({ email: createUserDto.email });
       prisma.user.findUnique.mockResolvedValue(existingUser);
 
-      await expect(service.create(createUserDto as any, creatorId)).rejects.toThrow(
-        ConflictException
-      );
+      await expect(
+        service.create(createUserDto as any, creatorId)
+      ).rejects.toThrow(ConflictException);
       expect(prisma.user.create).not.toHaveBeenCalled();
     });
 
@@ -133,9 +133,9 @@ describe('UsersService', () => {
       (bcrypt.hash as jest.Mock).mockResolvedValue('hashed-password');
       prisma.user.create.mockRejectedValue(new Error('Database error'));
 
-      await expect(service.create(createUserDto as any, creatorId)).rejects.toThrow(
-        BadRequestException
-      );
+      await expect(
+        service.create(createUserDto as any, creatorId)
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -413,7 +413,10 @@ describe('UsersService', () => {
       const longName = 'A'.repeat(500);
 
       prisma.user.findUnique.mockResolvedValue(existingUser);
-      prisma.user.update.mockResolvedValue({ ...existingUser, firstName: longName });
+      prisma.user.update.mockResolvedValue({
+        ...existingUser,
+        firstName: longName,
+      });
 
       await service.update(
         userId,

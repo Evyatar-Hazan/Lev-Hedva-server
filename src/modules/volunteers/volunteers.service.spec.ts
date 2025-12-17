@@ -93,7 +93,9 @@ describe('VolunteersService', () => {
 
     it('should create a volunteer activity successfully', async () => {
       mockPrismaService.user.findFirst.mockResolvedValue(mockVolunteer);
-      mockPrismaService.volunteerActivity.create.mockResolvedValue(mockActivity);
+      mockPrismaService.volunteerActivity.create.mockResolvedValue(
+        mockActivity
+      );
 
       const result = await service.createActivity(createActivityDto, mockUser);
 
@@ -140,28 +142,35 @@ describe('VolunteersService', () => {
     it('should throw NotFoundException when volunteer does not exist', async () => {
       mockPrismaService.user.findFirst.mockResolvedValue(null);
 
-      await expect(service.createActivity(createActivityDto, mockUser)).rejects.toThrow(
-        new NotFoundException('המתנדב לא נמצא או אינו פעיל'),
-      );
+      await expect(
+        service.createActivity(createActivityDto, mockUser)
+      ).rejects.toThrow(new NotFoundException('המתנדב לא נמצא או אינו פעיל'));
     });
 
     it('should throw BadRequestException for invalid hours', async () => {
       const invalidDto = { ...createActivityDto, hours: 25 };
       mockPrismaService.user.findFirst.mockResolvedValue(mockVolunteer);
 
-      await expect(service.createActivity(invalidDto, mockUser)).rejects.toThrow(
-        new BadRequestException('מספר השעות חייב להיות בין 1 ל-24'),
+      await expect(
+        service.createActivity(invalidDto, mockUser)
+      ).rejects.toThrow(
+        new BadRequestException('מספר השעות חייב להיות בין 1 ל-24')
       );
     });
 
     it('should throw BadRequestException for future date', async () => {
       const futureDate = new Date();
       futureDate.setDate(futureDate.getDate() + 1);
-      const invalidDto = { ...createActivityDto, date: futureDate.toISOString() };
+      const invalidDto = {
+        ...createActivityDto,
+        date: futureDate.toISOString(),
+      };
       mockPrismaService.user.findFirst.mockResolvedValue(mockVolunteer);
 
-      await expect(service.createActivity(invalidDto, mockUser)).rejects.toThrow(
-        new BadRequestException('לא ניתן לרשום פעילות לתאריך עתידי'),
+      await expect(
+        service.createActivity(invalidDto, mockUser)
+      ).rejects.toThrow(
+        new BadRequestException('לא ניתן לרשום פעילות לתאריך עתידי')
       );
     });
   });
@@ -181,7 +190,9 @@ describe('VolunteersService', () => {
       const activities = [mockActivity];
       const total = 1;
 
-      mockPrismaService.volunteerActivity.findMany.mockResolvedValue([mockActivity]);
+      mockPrismaService.volunteerActivity.findMany.mockResolvedValue([
+        mockActivity,
+      ]);
       mockPrismaService.volunteerActivity.count.mockResolvedValue(1);
 
       const result = await service.findAllActivities(queryDto, mockUser);
@@ -202,8 +213,10 @@ describe('VolunteersService', () => {
 
     it('should handle search functionality', async () => {
       const searchQuery = { ...queryDto, search: 'אירוע' };
-      
-      mockPrismaService.volunteerActivity.findMany.mockResolvedValue([mockActivity]);
+
+      mockPrismaService.volunteerActivity.findMany.mockResolvedValue([
+        mockActivity,
+      ]);
       mockPrismaService.volunteerActivity.count.mockResolvedValue(1);
 
       await service.findAllActivities(searchQuery, mockUser);
@@ -216,7 +229,7 @@ describe('VolunteersService', () => {
               { activityType: { contains: 'אירוע', mode: 'insensitive' } },
             ]),
           }),
-        }),
+        })
       );
     });
   });
@@ -228,11 +241,15 @@ describe('VolunteersService', () => {
     };
 
     it('should return activity by ID', async () => {
-      mockPrismaService.volunteerActivity.findUnique.mockResolvedValue(mockActivity);
+      mockPrismaService.volunteerActivity.findUnique.mockResolvedValue(
+        mockActivity
+      );
 
       const result = await service.findActivityById('activity-1', mockUser);
 
-      expect(mockPrismaService.volunteerActivity.findUnique).toHaveBeenCalledWith({
+      expect(
+        mockPrismaService.volunteerActivity.findUnique
+      ).toHaveBeenCalledWith({
         where: { id: 'activity-1' },
         include: {
           volunteer: {
@@ -252,9 +269,9 @@ describe('VolunteersService', () => {
     it('should throw NotFoundException when activity does not exist', async () => {
       mockPrismaService.volunteerActivity.findUnique.mockResolvedValue(null);
 
-      await expect(service.findActivityById('non-existent', mockUser)).rejects.toThrow(
-        new NotFoundException('הפעילות לא נמצאה'),
-      );
+      await expect(
+        service.findActivityById('non-existent', mockUser)
+      ).rejects.toThrow(new NotFoundException('הפעילות לא נמצאה'));
     });
   });
 
@@ -266,13 +283,19 @@ describe('VolunteersService', () => {
 
     it('should update activity successfully', async () => {
       const updatedActivity = { ...mockActivity, ...updateDto };
-      
-      mockPrismaService.volunteerActivity.findUnique.mockResolvedValue(mockActivity);
-      mockPrismaService.volunteerActivity.update.mockResolvedValue(updatedActivity);
+
+      mockPrismaService.volunteerActivity.findUnique.mockResolvedValue(
+        mockActivity
+      );
+      mockPrismaService.volunteerActivity.update.mockResolvedValue(
+        updatedActivity
+      );
 
       const result = await service.updateActivity('activity-1', updateDto);
 
-      expect(mockPrismaService.volunteerActivity.findUnique).toHaveBeenCalledWith({
+      expect(
+        mockPrismaService.volunteerActivity.findUnique
+      ).toHaveBeenCalledWith({
         where: { id: 'activity-1' },
       });
 
@@ -301,20 +324,26 @@ describe('VolunteersService', () => {
     it('should throw NotFoundException when activity does not exist', async () => {
       mockPrismaService.volunteerActivity.findUnique.mockResolvedValue(null);
 
-      await expect(service.updateActivity('non-existent', updateDto)).rejects.toThrow(
-        new NotFoundException('הפעילות לא נמצאה'),
-      );
+      await expect(
+        service.updateActivity('non-existent', updateDto)
+      ).rejects.toThrow(new NotFoundException('הפעילות לא נמצאה'));
     });
   });
 
   describe('deleteActivity', () => {
     it('should delete activity successfully', async () => {
-      mockPrismaService.volunteerActivity.findUnique.mockResolvedValue(mockActivity);
-      mockPrismaService.volunteerActivity.delete.mockResolvedValue(mockActivity);
+      mockPrismaService.volunteerActivity.findUnique.mockResolvedValue(
+        mockActivity
+      );
+      mockPrismaService.volunteerActivity.delete.mockResolvedValue(
+        mockActivity
+      );
 
       await service.deleteActivity('activity-1');
 
-      expect(mockPrismaService.volunteerActivity.findUnique).toHaveBeenCalledWith({
+      expect(
+        mockPrismaService.volunteerActivity.findUnique
+      ).toHaveBeenCalledWith({
         where: { id: 'activity-1' },
       });
 
@@ -327,7 +356,7 @@ describe('VolunteersService', () => {
       mockPrismaService.volunteerActivity.findUnique.mockResolvedValue(null);
 
       await expect(service.deleteActivity('non-existent')).rejects.toThrow(
-        new NotFoundException('הפעילות לא נמצאה'),
+        new NotFoundException('הפעילות לא נמצאה')
       );
     });
   });
@@ -345,7 +374,9 @@ describe('VolunteersService', () => {
       ];
 
       mockPrismaService.user.findFirst.mockResolvedValue(mockVolunteer);
-      mockPrismaService.volunteerActivity.findMany.mockResolvedValue(activities);
+      mockPrismaService.volunteerActivity.findMany.mockResolvedValue(
+        activities
+      );
 
       const result = await service.getVolunteerStats('volunteer-1');
 
@@ -389,15 +420,19 @@ describe('VolunteersService', () => {
         { activityType: 'ליווי' },
       ];
 
-      mockPrismaService.volunteerActivity.findMany.mockResolvedValue(activityTypes);
+      mockPrismaService.volunteerActivity.findMany.mockResolvedValue(
+        activityTypes
+      );
 
       const result = await service.getActivityTypes();
 
-      expect(mockPrismaService.volunteerActivity.findMany).toHaveBeenCalledWith({
-        select: { activityType: true },
-        distinct: ['activityType'],
-        orderBy: { activityType: 'asc' },
-      });
+      expect(mockPrismaService.volunteerActivity.findMany).toHaveBeenCalledWith(
+        {
+          select: { activityType: true },
+          distinct: ['activityType'],
+          orderBy: { activityType: 'asc' },
+        }
+      );
 
       expect(result).toEqual(['אירוע', 'הכשרה', 'ליווי']);
     });

@@ -43,7 +43,7 @@ describe('AppController (e2e)', () => {
     const response = await request(app.getHttpServer())
       .get('/health')
       .expect(200);
-    
+
     expect(response.body).toHaveProperty('status');
     expect(['healthy', 'unhealthy']).toContain(response.body.status);
     expect(response.body).toHaveProperty('service', 'Lev Hedva API');

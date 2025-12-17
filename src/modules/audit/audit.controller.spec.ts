@@ -310,7 +310,9 @@ describe('AuditController', () => {
       expect(getAuditLogsPermissions).toContain(PERMISSIONS.ADMIN_AUDIT);
       expect(getAuditStatisticsPermissions).toContain(PERMISSIONS.ADMIN_AUDIT);
       expect(getAvailableActionsPermissions).toContain(PERMISSIONS.ADMIN_AUDIT);
-      expect(getAvailableEntitiesPermissions).toContain(PERMISSIONS.ADMIN_AUDIT);
+      expect(getAvailableEntitiesPermissions).toContain(
+        PERMISSIONS.ADMIN_AUDIT
+      );
     });
   });
 
@@ -321,30 +323,46 @@ describe('AuditController', () => {
         limit: 10,
       };
 
-      mockAuditService.findAllAuditLogs.mockRejectedValue(new Error('Database error'));
+      mockAuditService.findAllAuditLogs.mockRejectedValue(
+        new Error('Database error')
+      );
 
-      await expect(controller.getAuditLogs(query)).rejects.toThrow('Database error');
+      await expect(controller.getAuditLogs(query)).rejects.toThrow(
+        'Database error'
+      );
       expect(mockAuditService.findAllAuditLogs).toHaveBeenCalledWith(query);
     });
 
     it('צריך לטפל בשגיאות מהשירות בgetAuditStatistics', async () => {
-      mockAuditService.getAuditStatistics.mockRejectedValue(new Error('Service error'));
+      mockAuditService.getAuditStatistics.mockRejectedValue(
+        new Error('Service error')
+      );
 
-      await expect(controller.getAuditStatistics()).rejects.toThrow('Service error');
+      await expect(controller.getAuditStatistics()).rejects.toThrow(
+        'Service error'
+      );
       expect(mockAuditService.getAuditStatistics).toHaveBeenCalledWith();
     });
 
     it('צריך לטפל בשגיאות מהשירות בgetAvailableActions', async () => {
-      mockAuditService.getAvailableActions.mockRejectedValue(new Error('Actions error'));
+      mockAuditService.getAvailableActions.mockRejectedValue(
+        new Error('Actions error')
+      );
 
-      await expect(controller.getAvailableActions()).rejects.toThrow('Actions error');
+      await expect(controller.getAvailableActions()).rejects.toThrow(
+        'Actions error'
+      );
       expect(mockAuditService.getAvailableActions).toHaveBeenCalledWith();
     });
 
     it('צריך לטפל בשגיאות מהשירות בgetAvailableEntities', async () => {
-      mockAuditService.getAvailableEntities.mockRejectedValue(new Error('Entities error'));
+      mockAuditService.getAvailableEntities.mockRejectedValue(
+        new Error('Entities error')
+      );
 
-      await expect(controller.getAvailableEntities()).rejects.toThrow('Entities error');
+      await expect(controller.getAvailableEntities()).rejects.toThrow(
+        'Entities error'
+      );
       expect(mockAuditService.getAvailableEntities).toHaveBeenCalledWith();
     });
   });

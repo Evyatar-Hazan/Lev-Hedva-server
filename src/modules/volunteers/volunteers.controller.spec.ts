@@ -46,11 +46,11 @@ describe('VolunteersController', () => {
         },
       ],
     })
-    .overrideGuard(JwtAuthGuard)
-    .useValue({ canActivate: jest.fn(() => true) })
-    .overrideGuard(PermissionGuard)
-    .useValue({ canActivate: jest.fn(() => true) })
-    .compile();
+      .overrideGuard(JwtAuthGuard)
+      .useValue({ canActivate: jest.fn(() => true) })
+      .overrideGuard(PermissionGuard)
+      .useValue({ canActivate: jest.fn(() => true) })
+      .compile();
 
     controller = module.get<VolunteersController>(VolunteersController);
     service = module.get<VolunteersService>(VolunteersService);
@@ -80,9 +80,15 @@ describe('VolunteersController', () => {
     it('should create a volunteer activity', async () => {
       mockVolunteersService.createActivity.mockResolvedValue(mockActivity);
 
-      const result = await controller.createActivity(createActivityDto, mockUser);
+      const result = await controller.createActivity(
+        createActivityDto,
+        mockUser
+      );
 
-      expect(mockVolunteersService.createActivity).toHaveBeenCalledWith(createActivityDto, mockUser);
+      expect(mockVolunteersService.createActivity).toHaveBeenCalledWith(
+        createActivityDto,
+        mockUser
+      );
       expect(result).toEqual(mockActivity);
     });
   });
@@ -111,7 +117,10 @@ describe('VolunteersController', () => {
 
       const result = await controller.findAllActivities(queryDto, mockUser);
 
-      expect(mockVolunteersService.findAllActivities).toHaveBeenCalledWith(queryDto, mockUser);
+      expect(mockVolunteersService.findAllActivities).toHaveBeenCalledWith(
+        queryDto,
+        mockUser
+      );
       expect(result).toEqual(expectedResult);
     });
   });
@@ -127,7 +136,10 @@ describe('VolunteersController', () => {
 
       const result = await controller.findActivity('activity-1', mockUser);
 
-      expect(mockVolunteersService.findActivityById).toHaveBeenCalledWith('activity-1', mockUser);
+      expect(mockVolunteersService.findActivityById).toHaveBeenCalledWith(
+        'activity-1',
+        mockUser
+      );
       expect(result).toEqual(mockActivity);
     });
   });
@@ -144,7 +156,10 @@ describe('VolunteersController', () => {
 
       const result = await controller.updateActivity('activity-1', updateDto);
 
-      expect(mockVolunteersService.updateActivity).toHaveBeenCalledWith('activity-1', updateDto);
+      expect(mockVolunteersService.updateActivity).toHaveBeenCalledWith(
+        'activity-1',
+        updateDto
+      );
       expect(result).toEqual(updatedActivity);
     });
   });
@@ -155,7 +170,9 @@ describe('VolunteersController', () => {
 
       await controller.deleteActivity('activity-1');
 
-      expect(mockVolunteersService.deleteActivity).toHaveBeenCalledWith('activity-1');
+      expect(mockVolunteersService.deleteActivity).toHaveBeenCalledWith(
+        'activity-1'
+      );
     });
   });
 
@@ -169,8 +186,8 @@ describe('VolunteersController', () => {
       firstActivityDate: new Date('2024-01-01'),
       lastActivityDate: new Date('2024-01-15'),
       activitiesByType: {
-        'אירוע': { count: 3, hours: 12 },
-        'הכשרה': { count: 2, hours: 8 },
+        אירוע: { count: 3, hours: 12 },
+        הכשרה: { count: 2, hours: 8 },
       },
       monthlyBreakdown: {
         '2024-01': { count: 5, hours: 20 },
@@ -186,7 +203,7 @@ describe('VolunteersController', () => {
       expect(mockVolunteersService.getVolunteerStats).toHaveBeenCalledWith(
         'volunteer-1',
         undefined,
-        undefined,
+        undefined
       );
       expect(result).toEqual(mockStats);
     });
@@ -194,20 +211,24 @@ describe('VolunteersController', () => {
     it('should handle date parameters', async () => {
       mockVolunteersService.getVolunteerStats.mockResolvedValue(mockStats);
 
-      await controller.getVolunteerStats('volunteer-1', '2024-01-01', '2024-01-31');
+      await controller.getVolunteerStats(
+        'volunteer-1',
+        '2024-01-01',
+        '2024-01-31'
+      );
 
       expect(mockVolunteersService.getVolunteerStats).toHaveBeenCalledWith(
         'volunteer-1',
         new Date('2024-01-01'),
-        new Date('2024-01-31'),
+        new Date('2024-01-31')
       );
     });
 
     it('should throw BadRequestException for invalid date format', async () => {
       await expect(
-        controller.getVolunteerStats('volunteer-1', 'invalid-date'),
+        controller.getVolunteerStats('volunteer-1', 'invalid-date')
       ).rejects.toThrow(
-        new BadRequestException('Invalid start date format. Use YYYY-MM-DD.'),
+        new BadRequestException('Invalid start date format. Use YYYY-MM-DD.')
       );
     });
   });
@@ -242,7 +263,9 @@ describe('VolunteersController', () => {
 
       const result = await controller.generateReports(queryDto);
 
-      expect(mockVolunteersService.generateReports).toHaveBeenCalledWith(queryDto);
+      expect(mockVolunteersService.generateReports).toHaveBeenCalledWith(
+        queryDto
+      );
       expect(result).toEqual(mockReport);
     });
   });
@@ -251,7 +274,9 @@ describe('VolunteersController', () => {
     const mockActivityTypes = ['אירוע', 'הכשרה', 'ליווי', 'עזרה טכנית'];
 
     it('should return activity types', async () => {
-      mockVolunteersService.getActivityTypes.mockResolvedValue(mockActivityTypes);
+      mockVolunteersService.getActivityTypes.mockResolvedValue(
+        mockActivityTypes
+      );
 
       const result = await controller.getActivityTypes();
 

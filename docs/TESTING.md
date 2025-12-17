@@ -1,6 +1,7 @@
 # Testing Infrastructure Documentation
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [Quick Start](#quick-start)
 - [Test Types](#test-types)
@@ -25,6 +26,7 @@ This project implements a **comprehensive, production-grade testing infrastructu
 - ✅ **Mock Services** - Isolated and deterministic tests
 
 ### Technology Stack
+
 - **Testing Framework**: Jest 30.x
 - **Test Runner**: ts-jest
 - **E2E Testing**: Supertest
@@ -36,21 +38,25 @@ This project implements a **comprehensive, production-grade testing infrastructu
 ## Quick Start
 
 ### 1. Install Dependencies
+
 ```bash
 npm install
 ```
 
 ### 2. Run All Tests
+
 ```bash
 npm test
 ```
 
 ### 3. Run Tests with Coverage
+
 ```bash
 npm run test:cov
 ```
 
 ### 4. Run Tests in Watch Mode (Development)
+
 ```bash
 npm run test:watch
 ```
@@ -60,17 +66,20 @@ npm run test:watch
 ## Test Types
 
 ### Unit Tests
+
 **Location**: `src/**/*.spec.ts`
 
 **Purpose**: Test individual services, classes, and functions in isolation.
 
 **Characteristics**:
+
 - No database connections
 - All dependencies are mocked
 - Fast execution (< 1 second per test)
 - Deterministic results
 
 **Example**:
+
 ```typescript
 // src/modules/auth/auth.service.spec.ts
 describe('AuthService', () => {
@@ -81,17 +90,20 @@ describe('AuthService', () => {
 ```
 
 ### Integration Tests (E2E)
+
 **Location**: `test/integration/**/*.e2e-spec.ts`
 
 **Purpose**: Test complete API endpoints with real database interactions.
 
 **Characteristics**:
+
 - Uses test database
 - Tests full request/response cycle
 - Validates authentication and authorization
 - Tests cross-module interactions
 
 **Example**:
+
 ```typescript
 // test/integration/auth.e2e-spec.ts
 describe('Auth API (e2e)', () => {
@@ -100,7 +112,7 @@ describe('Auth API (e2e)', () => {
       .post('/auth/login')
       .send({ email: 'test@example.com', password: 'password' })
       .expect(200);
-    
+
     expect(response.body).toHaveProperty('accessToken');
   });
 });
@@ -229,9 +241,9 @@ const nextWeek = dateInFuture(7);
 ```typescript
 it('should handle async operations', async () => {
   mockService.someAsyncMethod.mockResolvedValue(expectedResult);
-  
+
   const result = await service.methodUnderTest();
-  
+
   expect(result).toBe(expectedResult);
 });
 ```
@@ -271,30 +283,36 @@ describe('input validation', () => {
 Tests are **automatically enforced** before commits and pushes via Husky Git hooks.
 
 #### Pre-Commit Hook
+
 **Location**: `.husky/pre-commit`
 
 **Runs**:
+
 1. Tests on changed files only
 2. ESLint on all staged files
 
 **Execution Time**: ~5-15 seconds
 
 **What happens if it fails**:
+
 ```bash
 ❌ Tests failed. Commit aborted.
 💡 Fix the failing tests or use 'git commit --no-verify' to bypass (not recommended)
 ```
 
 #### Pre-Push Hook
+
 **Location**: `.husky/pre-push`
 
 **Runs**:
+
 1. Full test suite
 2. Code coverage check (must meet 80% threshold)
 
 **Execution Time**: ~30-60 seconds
 
 **What happens if it fails**:
+
 ```bash
 ❌ Tests or coverage check failed. Push aborted.
 💡 Ensure all tests pass and coverage meets the 80% threshold.
@@ -322,6 +340,7 @@ git push --no-verify
 ### Coverage Requirements
 
 The project enforces **minimum 80% coverage** for:
+
 - **Branches** - 80%
 - **Functions** - 80%
 - **Lines** - 80%
@@ -352,6 +371,7 @@ coverage/
 ### Excluded from Coverage
 
 The following files are excluded from coverage calculations:
+
 - `*.module.ts` - NestJS modules
 - `*.dto.ts` - Data Transfer Objects
 - `*.interface.ts` - TypeScript interfaces
@@ -412,11 +432,11 @@ Don't just test the happy path:
 
 ```typescript
 describe('createUser', () => {
-  it('should create user with valid data', async () => {});           // Happy path
-  it('should throw ConflictException for duplicate email', async () => {});  // Error case
-  it('should handle database connection errors', async () => {});     // Infrastructure failure
-  it('should validate email format', async () => {});                 // Input validation
-  it('should hash password securely', async () => {});                // Security
+  it('should create user with valid data', async () => {}); // Happy path
+  it('should throw ConflictException for duplicate email', async () => {}); // Error case
+  it('should handle database connection errors', async () => {}); // Infrastructure failure
+  it('should validate email format', async () => {}); // Input validation
+  it('should hash password securely', async () => {}); // Security
 });
 ```
 
@@ -449,7 +469,10 @@ describe('Service Tests', () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [MyService, { provide: PrismaService, useFactory: createMockPrismaService }],
+      providers: [
+        MyService,
+        { provide: PrismaService, useFactory: createMockPrismaService },
+      ],
     }).compile();
 
     service = module.get<MyService>(MyService);
@@ -457,7 +480,7 @@ describe('Service Tests', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();  // Clear all mocks between tests
+    jest.clearAllMocks(); // Clear all mocks between tests
   });
 });
 ```
@@ -468,14 +491,14 @@ Use parameterized tests for similar scenarios:
 
 ```typescript
 describe('email validation', () => {
-  it.each([
-    'invalid',
-    '@example.com',
-    'test@',
-    'test @example.com',
-  ])('should reject invalid email: %s', async (email) => {
-    await expect(service.create({ email, password: 'pass' })).rejects.toThrow();
-  });
+  it.each(['invalid', '@example.com', 'test@', 'test @example.com'])(
+    'should reject invalid email: %s',
+    async (email) => {
+      await expect(
+        service.create({ email, password: 'pass' })
+      ).rejects.toThrow();
+    }
+  );
 });
 ```
 
@@ -490,10 +513,11 @@ describe('email validation', () => {
 **Cause**: Open connections or timers not closed.
 
 **Solution**:
+
 ```typescript
 afterAll(async () => {
-  await app.close();  // Close NestJS application
-  await prisma.$disconnect();  // Close database connection
+  await app.close(); // Close NestJS application
+  await prisma.$disconnect(); // Close database connection
 });
 ```
 
@@ -502,6 +526,7 @@ afterAll(async () => {
 **Cause**: Path alias not configured correctly.
 
 **Solution**: Ensure `jest.config.cjs` has correct `moduleNameMapper`:
+
 ```javascript
 moduleNameMapper: {
   '^@/(.*)$': '<rootDir>/src/$1',
@@ -513,6 +538,7 @@ moduleNameMapper: {
 **Cause**: Async operation takes too long or never resolves.
 
 **Solution**:
+
 ```typescript
 it('should complete quickly', async () => {
   // Increase timeout for this test only
@@ -527,6 +553,7 @@ testTimeout: 10000,
 **Cause**: Trying to mock a non-function property.
 
 **Solution**:
+
 ```typescript
 // Use jest.spyOn for functions
 jest.spyOn(bcrypt, 'hash').mockResolvedValue('hashed');
@@ -542,12 +569,13 @@ Object.defineProperty(global, 'Date', {
 **Cause**: Comparing objects that look the same but have different references.
 
 **Solution**:
+
 ```typescript
 // ✅ Use toEqual for deep object comparison
 expect(result).toEqual({ id: '123', name: 'Test' });
 
 // ❌ toBe only works for primitives
-expect(result).toBe({ id: '123', name: 'Test' });  // Will fail
+expect(result).toBe({ id: '123', name: 'Test' }); // Will fail
 ```
 
 #### 6. "Mock function has been called with invalid arguments"
@@ -555,6 +583,7 @@ expect(result).toBe({ id: '123', name: 'Test' });  // Will fail
 **Cause**: Mock called with unexpected parameters.
 
 **Solution**: Check the actual calls:
+
 ```typescript
 expect(mockService.create).toHaveBeenCalledWith(expectedDto);
 
@@ -565,16 +594,19 @@ console.log(mockService.create.mock.calls);
 ### Debugging Tests
 
 #### Enable Verbose Output
+
 ```bash
 npm test -- --verbose
 ```
 
 #### Run Single Test File
+
 ```bash
 npm test -- src/modules/auth/auth.service.spec.ts
 ```
 
 #### Run in Debug Mode
+
 ```bash
 npm run test:debug
 ```
@@ -582,6 +614,7 @@ npm run test:debug
 Then attach a debugger (VS Code, Chrome DevTools) to `node --inspect-brk` process.
 
 #### Check What Tests Will Run
+
 ```bash
 npm test -- --listTests
 ```
@@ -608,21 +641,21 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run tests with coverage
         run: npm run test:ci
-      
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
@@ -633,10 +666,10 @@ jobs:
 
 ## Summary
 
-✅ **All code must be tested** before commit and push  
-✅ **80% code coverage** is enforced  
-✅ **Tests run automatically** via Git hooks  
-✅ **Fast feedback loop** with watch mode  
-✅ **Comprehensive test utilities** available  
+✅ **All code must be tested** before commit and push
+✅ **80% code coverage** is enforced
+✅ **Tests run automatically** via Git hooks
+✅ **Fast feedback loop** with watch mode
+✅ **Comprehensive test utilities** available
 
 **Remember**: Tests are not optional - they are a critical part of the development process!

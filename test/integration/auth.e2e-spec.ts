@@ -16,7 +16,7 @@ describe.skip('Auth Integration Tests (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    
+
     // Apply global pipes
     app.useGlobalPipes(
       new ValidationPipe({
@@ -331,9 +331,7 @@ describe.skip('Auth Integration Tests (e2e)', () => {
     });
 
     it('should reject request without token', async () => {
-      await request(app.getHttpServer())
-        .get('/auth/profile')
-        .expect(401);
+      await request(app.getHttpServer()).get('/auth/profile').expect(401);
     });
 
     it('should reject request with invalid token', async () => {

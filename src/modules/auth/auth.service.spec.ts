@@ -210,7 +210,9 @@ describe('AuthService', () => {
     });
 
     it('should throw UnauthorizedException for inactive user', async () => {
-      const inactiveUser = UserFactory.createInactive({ email: loginDto.email });
+      const inactiveUser = UserFactory.createInactive({
+        email: loginDto.email,
+      });
       prisma.user.findUnique.mockResolvedValue(inactiveUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
@@ -304,7 +306,10 @@ describe('AuthService', () => {
     it('should return null for non-existent user', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
 
-      const result = await service.validateUser('nonexistent@example.com', 'pass');
+      const result = await service.validateUser(
+        'nonexistent@example.com',
+        'pass'
+      );
 
       expect(result).toBeNull();
     });
