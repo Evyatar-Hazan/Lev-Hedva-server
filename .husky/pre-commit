@@ -7,9 +7,13 @@ echo "🔍 Running pre-commit checks..."
 STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|js)$' || true)
 
 if [ -n "$STAGED_FILES" ]; then
+  echo "💅 Formatting code with Prettier..."
+  npx prettier --write $STAGED_FILES
+  git add $STAGED_FILES
+  
   echo "Running tests on changed files..."
   npm run test:pre-commit -- $STAGED_FILES
-  
+
   # Check if tests passed
   if [ $? -ne 0 ]; then
     echo "❌ Tests failed. Commit aborted."
