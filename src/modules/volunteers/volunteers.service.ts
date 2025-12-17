@@ -286,7 +286,7 @@ export class VolunteersService {
       });
 
       return this.formatActivityResponse(activity);
-    } catch (error) {
+    } catch {
       throw new BadRequestException('שגיאה בעדכון הפעילות');
     }
   }
@@ -304,7 +304,7 @@ export class VolunteersService {
       await this.prisma.volunteerActivity.delete({
         where: { id },
       });
-    } catch (error) {
+    } catch {
       throw new BadRequestException('שגיאה במחיקת הפעילות');
     }
   }

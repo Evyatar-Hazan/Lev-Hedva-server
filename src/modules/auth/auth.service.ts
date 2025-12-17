@@ -323,7 +323,7 @@ export class AuthService {
           permissions: user.userPermissions.map((up) => up.permission.name),
         },
       };
-    } catch (error) {
+    } catch {
       throw new UnauthorizedException('Refresh token לא תקין');
     }
   }

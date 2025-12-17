@@ -83,7 +83,7 @@ export class UsersService {
       );
 
       return this.mapToUserResponse(user);
-    } catch (error) {
+    } catch {
       throw new BadRequestException('שגיאה ביצירת המשתמש');
     }
   }
@@ -242,7 +242,7 @@ export class UsersService {
       );
 
       return this.mapToUserResponse(updatedUser);
-    } catch (error) {
+    } catch {
       throw new BadRequestException('שגיאה בעדכון המשתמש');
     }
   }
@@ -284,7 +284,7 @@ export class UsersService {
       );
 
       return { message: 'המשתמש נמחק בהצלחה' };
-    } catch (error) {
+    } catch {
       throw new BadRequestException('שגיאה במחיקת המשתמש');
     }
   }
