@@ -219,6 +219,35 @@ describe('AuthService', () => {
       await expect(service.login(loginDto)).rejects.toThrow(
         UnauthorizedException
       );
+      await expect(service.login(loginDto)).rejects.toThrow(
+        'החשבון שלך אינו פעיל. אנא פנה למנהל המערכת לשחרור החשבון.'
+      );
+    });
+
+    it('should log failed login attempt for inactive user', async () => {
+      const inactiveUser = UserFactory.createInactive({
+        email: loginDto.email,
+      });
+      prisma.user.findUnique.mockResolvedValue(inactiveUser);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+      try {
+        await service.login(loginDto);
+      } catch (error) {
+        // Expected to throw
+      }
+
+      expect(auditService.logSecurityEvent).toHaveBeenCalledWith(
+        'FAILED_LOGIN',
+        expect.stringContaining('חשבון לא פעיל'),
+        inactiveUser.id,
+        undefined,
+        undefined,
+        expect.objectContaining({
+          email: loginDto.email,
+          reason: 'חשבון לא פעיל',
+        })
+      );
     });
 
     it('should update lastLogin timestamp on successful login', async () => {

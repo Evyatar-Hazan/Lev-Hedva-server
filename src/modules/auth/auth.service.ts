@@ -136,6 +136,29 @@ export class AuthService {
   async login(loginDto: LoginDto): Promise<AuthResponseDto> {
     const { email, password } = loginDto;
 
+    // First check if user exists and is active
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser && !existingUser.isActive) {
+      // Log failed login for inactive account
+      await this.auditService.logSecurityEvent(
+        AuditActionType.FAILED_LOGIN,
+        `ניסיון התחברות לחשבון לא פעיל: ${email}`,
+        existingUser.id,
+        undefined,
+        undefined,
+        {
+          email: email,
+          reason: 'חשבון לא פעיל',
+        }
+      );
+      throw new UnauthorizedException(
+        'החשבון שלך אינו פעיל. אנא פנה למנהל המערכת לשחרור החשבון.'
+      );
+    }
+
     const user = await this.validateUser(email, password);
     if (!user) {
       throw new UnauthorizedException('פרטי התחברות לא נכונים');
